@@ -5,6 +5,9 @@ using Pathfinding;
 
 public class unitManager : MonoBehaviour {
 
+	[Header("Player Information")]
+	public int ownerID;
+
 	[Header("AI Targets")]
 	public GameObject followTarget;
 	public GameObject attackTarget;

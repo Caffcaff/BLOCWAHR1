@@ -51,8 +51,19 @@ public class eventManager : MonoBehaviour {
 
 		public static particleEventDelegate onParticleEvent;
 
-	public delegate void buildEventDelegate(Vector3 position, int type, int playerID);
+	public delegate void buildEventDelegate(Vector3 position, int type);
 
+		public static buildEventDelegate onBuildSelect;
+		public static buildEventDelegate onBuildRequest;
+		public static buildEventDelegate onBuildConfirm;
+		public static buildEventDelegate onBuildCancel;
+
+	public delegate void rawInputDelegate(Vector3 position);
+
+	public static rawInputDelegate onLeftClick;
+	public static rawInputDelegate onRightClick;
+	public static rawInputDelegate onMiddleClick;
+	public static rawInputDelegate onEscapeKey;
 
 	// Input Event Methods
 
@@ -146,5 +157,40 @@ public class eventManager : MonoBehaviour {
 	public static void ParticleEvent (Vector3 sender, Vector3 reciever, int type) {
 		if (onParticleEvent != null)
 			onParticleEvent (sender, reciever, type);
+	}
+	//Build Events
+	public static void BuildSelect (Vector3 position, int type) {
+		if (onBuildSelect != null)
+			onBuildSelect (position, type);
+	}
+	public static void BuildRequest (Vector3 position, int type) {
+		if (onBuildRequest != null)
+			onBuildRequest (position, type);
+	}
+	public static void BuildConfirm (Vector3 position, int type) {
+		if (onBuildConfirm != null)
+			onBuildConfirm (position, type);
+	}
+	public static void BuildCancel (Vector3 position, int type) {
+		if (onBuildCancel != null)
+			onBuildCancel (position, type);
+	}
+
+	// Raw Input Events
+	public static void LeftClick (Vector3 position) {
+		if (onLeftClick != null)
+			onLeftClick (position);
+	}
+	public static void RightClick (Vector3 position) {
+		if (onRightClick != null)
+			onRightClick (position);
+	}
+	public static void MiddleClick (Vector3 position) {
+		if (onMiddleClick != null)
+			onMiddleClick (position);
+	}
+	public static void EscapeKey (Vector3 position) {
+		if (onEscapeKey != null)
+			onEscapeKey (position);
 	}
 }

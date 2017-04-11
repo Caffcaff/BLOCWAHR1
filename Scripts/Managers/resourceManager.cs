@@ -6,9 +6,6 @@ public class resourceManager : MonoBehaviour {
 
 	public int playerResource;
 	public int playerGold;
-	public int NPCResource;
-	public int NPCGold;
-
 
 	void OnEnable(){
 		eventManager.onCollect += collect;
@@ -28,12 +25,6 @@ public class resourceManager : MonoBehaviour {
 		if (type == 2) {
 			playerGold -= amount;
 		}
-		if (type == 3) {
-			NPCResource -= amount;
-		}
-		if (type == 5) {
-			NPCGold -= amount;
-		}	
 	}
 	
 	// Update is called once per frame
@@ -44,11 +35,8 @@ public class resourceManager : MonoBehaviour {
 		if (type == 2) {
 			playerGold += amount;
 		}
-		if (type == 3) {
-			NPCResource += amount;
-		}
-		if (type == 5) {
-			NPCGold += amount;
-		}
+	}
+	void buildConfirm(Vector3 point, int type){
+		// Something
 	}
 }

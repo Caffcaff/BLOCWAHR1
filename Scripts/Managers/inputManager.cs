@@ -27,7 +27,8 @@ public class inputManager : MonoBehaviour {
 		InGame,
 		GUI,
 		Patrol,
-		Build
+		Build,
+		Destroy
 	}
 
 	public State _state;
@@ -36,11 +37,17 @@ public class inputManager : MonoBehaviour {
 	void OnEnable(){
 		eventManager.onButtonEnter += onGUIenter;
 		eventManager.onButtonExit += onGUIexit;
+		eventManager.onBuildSelect += buildSelect;
+		eventManager.onBuildConfirm += buildConfirm;
+		eventManager.onBuildCancel += buildCancel;
 	}
 
 	void OnDisable(){
 		eventManager.onButtonEnter -= onGUIenter;
 		eventManager.onButtonExit -= onGUIexit;
+		eventManager.onBuildSelect -= buildSelect;
+		eventManager.onBuildConfirm -= buildConfirm;
+		eventManager.onBuildCancel -= buildCancel;
 	}
 
 
@@ -61,16 +68,19 @@ public class inputManager : MonoBehaviour {
 				break;
 			case State.InGame:
 				inGame ();
+					break;
+			case State.GUI:
+				inGui ();
 				break;
-//		case State.GUI:
-//			inGui ();
-//			break;
-//		case State.Patrol:
-//			inPatrol ();
-//			break;
-//		case State.Build:
-//			inBuild ();
-//			break;
+	//		case State.Patrol:
+	//			inPatrol ();
+	//			break;
+			case State.Build:
+				inBuild ();
+				break;
+	//		case State.Destroy:
+	//			inDestroy ();
+	//			break;
 			}
 			yield return 0;
 		}	
@@ -201,6 +211,34 @@ public class inputManager : MonoBehaviour {
 			if (buildActive == false && patrolActive == false) {
 				_state = State.InGame;
 			}
+		}
+	}
+	void buildSelect(Vector3 position, int type){
+		_state = State.Build;
+	}
+	void buildConfirm(Vector3 position, int type){
+		GUIActive = false;
+		_state = State.InGame;
+	}
+	void buildCancel(Vector3 position, int type){
+		_state = State.InGame;
+	}
+	void inGui(){
+		// Something
+	}
+	void inBuild(){
+		if (Input.GetMouseButtonDown (0)) {
+			eventManager.onLeftClick (transform.position);
+		}
+		if (Input.GetButtonDown("Fire1")) {
+			eventManager.onRightClick (transform.position);
+		}
+		if (Input.GetButtonDown("Fire2")) {
+			eventManager.onMiddleClick (transform.position);
+		}
+		if (Input.GetKeyDown ("escape")) {
+			eventManager.onEscapeKey (transform.position);
+			_state = State.InGame;
 		}
 	}
 }
