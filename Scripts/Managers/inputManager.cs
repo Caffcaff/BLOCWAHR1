@@ -107,6 +107,9 @@ public class inputManager : MonoBehaviour {
 
 	private void inGame ()
 	{
+		buildActive = false;
+		patrolActive = false;
+
 		if (Input.GetKey (KeyCode.Mouse0) && GUIActive == false) {
 			// Called on the first update where the user has pressed the mouse button.
 			if (Input.GetKeyDown (KeyCode.Mouse0))
@@ -135,13 +138,13 @@ public class inputManager : MonoBehaviour {
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
 			if (Physics.Raycast (ray, out hit, 2000.0f)) {
 				if (hit.collider.tag != null) {
-					if (hit.collider.tag == "Enemy" || hit.collider.tag == "Friendly" || hit.collider.tag == "NPC" || hit.collider.tag == "Structure" || hit.collider.tag == "Resource" || hit.collider.tag == "ResourceG") {
+					if (hit.collider.tag == "Enemy" || hit.collider.tag == "Friendly" || hit.collider.tag == "NPC" || hit.collider.tag == "Structure" || hit.collider.tag == "betaStructure" || hit.collider.tag == "Resource" || hit.collider.tag == "ResourceG") {
 						eventManager.AttackClick (hit.point, hit.collider.gameObject);
 						Debug.Log ("Clicked Attack");
 					}
 					if (hit.collider.tag == "Floor" || hit.collider.tag == "Environment" || hit.collider.tag == "buildPlane") {
 						Debug.Log ("Clicked nav");
-						eventManager.NavClick (hit.point, hit.collider.gameObject);
+						eventManager.NavClick(hit.point, hit.collider.gameObject);
 					}
 //					if (hit.collider.tag == "Floor" || hit.collider.tag == "Environment") {
 //						eventManager.GroundAttackClick(hit.point, hit.collider.gameObject);
@@ -174,11 +177,18 @@ public class inputManager : MonoBehaviour {
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
 		if (Physics.Raycast (ray, out hit, 1000.0f)) {
 			if (hit.collider.tag != null) {
-				if (hit.collider.tag == "Friendly" || hit.collider.tag == "FriendlyStruct") {
-					eventManager.UnitSelect (hit.collider.gameObject);
-					Debug.Log ("Clicked Select");
-				
+				eventManager.ClearSelect (hit.collider.gameObject);
+				if (hit.collider.tag == "Friendly" | hit.collider.tag == "Structure") {
+					if (hit.collider.tag == "Friendly") {
+						eventManager.UnitSelect (hit.collider.gameObject);
+						Debug.Log ("unit clicked");
+					}
+					if (hit.collider.tag == "Structure") {
+						eventManager.StructureSelect (hit.collider.gameObject);
+						Debug.Log ("Structure clicked");
+					}
 				} else {
+					Debug.Log ("Bebop");
 					eventManager.ClearSelect (hit.collider.gameObject);
 				}
 			}
@@ -201,17 +211,21 @@ public class inputManager : MonoBehaviour {
 		if (GUIActive == false) {
 			GUIActive = true;
 			Debug.Log ("GUI is Active");
-			_state = State.GUI;
+			if (_state == State.Build) {
+				_state = State.GUI;
+			} else {
+				_state = State.GUI;
+			}
 		}
 	}
 	void onGUIexit(GameObject unused){
-		if (GUIActive == true) {
 			GUIActive = false;
 			Debug.Log ("GUI is Not Active");
 			if (buildActive == false && patrolActive == false) {
 				_state = State.InGame;
 			}
-		}
+			if (buildActive == true) {
+				_state = State.Build;}
 	}
 	void buildSelect(Vector3 position, int type){
 		_state = State.Build;
@@ -227,6 +241,9 @@ public class inputManager : MonoBehaviour {
 		// Something
 	}
 	void inBuild(){
+		buildActive = true;
+		patrolActive = false;
+
 		if (Input.GetMouseButtonDown (0)) {
 			eventManager.onLeftClick (transform.position);
 		}

@@ -4,22 +4,22 @@ using UnityEngine;
 
 public class turretLogic : MonoBehaviour {
 
-	public unitManager unitmgmt;
+	public unitLogic unitmgmt;
 	public GameObject target;
 
 	// Use this for initialization
 	void Start () {
 		if (unitmgmt == null) {
-			unitmgmt = GetComponentInParent<unitManager> ();
+			unitmgmt = GetComponentInParent<unitLogic> ();
 		}
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (unitmgmt.attackTarget != target) {
-			target = unitmgmt.attackTarget;
+		if (unitmgmt.target != target) {
+			target = unitmgmt.target;
 		}
-		if (unitmgmt.attackTarget != null) {
+		if (unitmgmt.target != null) {
 			turn ();
 		}
 	}

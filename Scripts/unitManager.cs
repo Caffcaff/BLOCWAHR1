@@ -70,8 +70,9 @@ public class unitManager : MonoBehaviour {
 	// How often to recalculate the path (in seconds)
 	public float repathRate = 0.5f;
 	private float lastRepath = -9999;
-	public float followrate =3;
-	private float followreset;
+	public float followrate =0;
+	public float turnDamp = 1;
+	public float followreset = 3;
 	private bool isMining = false;
 	public GameObject Miner;
 	private Renderer mrender;
@@ -147,7 +148,6 @@ public class unitManager : MonoBehaviour {
 		if (sManager == null) {
 			GameObject owner = GameObject.FindWithTag("SelectionManager");
 			sManager = owner.GetComponent<selectionManager> ();
-			followreset = followrate;
 		}
 		if (Miner != null) {
 			mrender = Miner.GetComponent<Renderer> ();
@@ -175,7 +175,7 @@ public class unitManager : MonoBehaviour {
 		move();
 	}
 
-	void navSet(Vector3 point, GameObject actor){
+	void navSet(Vector3 point, GameObject actor, bool leader){
 		if (selectState == true && actor == gameObject) {
 			targetPosition = point;
 			Debug.Log ("New Position Recieved");
@@ -226,6 +226,7 @@ public class unitManager : MonoBehaviour {
 			}
 
 			if (distance <= aRange + 3) {
+				turn ();
 				ticker = ticker - (Time.deltaTime * fireRate);
 				if (ticker <= 0) {
 					canFire = true;
@@ -238,7 +239,7 @@ public class unitManager : MonoBehaviour {
 				if (canFire && _type == Type.Miner)
 				{
 					if (isMining == false) {
-						light ();
+						mineLight ();
 						foreach (GameObject launcher in launchers) {
 							var mining = Instantiate (resourceGatherObj, Miner.transform.position, transform.rotation);
 							mining.transform.parent = launcher.transform;
@@ -288,12 +289,14 @@ public class unitManager : MonoBehaviour {
 		if (selectState == true) {
 			attackTarget = actor;
 			_state = State.Attack;
+			followrate = 0;
 		}
 	}
 	void groundAttackClick (Vector3 point, GameObject actor) {
 		if (selectState == true) {
 			gndAttackTarget = point;
 			_state = State.Attack;
+			followrate = 0;
 		}
 	}
 	public void selectEvent (GameObject unused)
@@ -319,17 +322,19 @@ public class unitManager : MonoBehaviour {
 			Debug.Log ("Damage Recieved");
 		}
 		// Collecting Resource
+		if (sender == this.gameObject) {
 
-		if (reciever.tag == "Resource") {
-			Debug.Log ("Mining");
-			eventManager.Collect (damage,1);
-		}
-		if (reciever.tag == "ResourceG") {
-			Debug.Log ("THARBEGOLDINDEMHILLS");
-			eventManager.Collect (damage,2);
-		}
-		if (sender == this.gameObject && reciever.tag != "Resource" && reciever.tag != "ResourceG" && reciever.tag != "Friendly") {
-			EXP++;
+			if (reciever.tag == "Resource" && _type == Type.Miner) {
+				Debug.Log ("Mining");
+				eventManager.Collect (damage, 1);
+			}
+			if (reciever.tag == "ResourceG" && _type == Type.Miner) {
+				Debug.Log ("THARBEGOLDINDEMHILLS");
+				eventManager.Collect (damage, 2);
+			}
+			if (reciever.tag != "Resource" && reciever.tag != "ResourceG" && reciever.tag != "Friendly") {
+				EXP++;
+			}
 		}
 	}
 	void move()
@@ -352,6 +357,9 @@ public class unitManager : MonoBehaviour {
 		}
 		// Direction to the next waypoint
 		Vector3 dir = (path.vectorPath[currentWaypoint]-transform.position).normalized;
+		dir.y = 0;
+		Quaternion rotation = Quaternion.LookRotation(dir);
+		transform.rotation = Quaternion.Slerp(transform.rotation, rotation, turnDamp * Time.deltaTime);
 		dir *= speed;
 		// Note that SimpleMove takes a velocity in meters/second, so we should not multiply by Time.deltaTime
 		controller.SimpleMove(dir);
@@ -364,6 +372,15 @@ public class unitManager : MonoBehaviour {
 		}
 		Debug.Log("Moving", gameObject);
 	}
+
+	void turn(){
+		Vector3 dir = (targetPosition-transform.position).normalized;
+		dir.y = 0;
+		Quaternion rotation = Quaternion.LookRotation(dir);
+		transform.rotation = Quaternion.Slerp(transform.rotation, rotation, turnDamp * Time.deltaTime);
+	}
+
+
 	void FindNextResource ()
 	{
 		GameObject[] gos;
@@ -378,11 +395,12 @@ public class unitManager : MonoBehaviour {
 				closest = go;
 				distance = curDistance;
 				attackTarget = closest;
-
+				Debug.Log ("Finding new target");
 			} 
 		}
 		if (distance > autotargetRange) {
 			_state = State.Idle;
+			Debug.Log ("No Targets");
 		}
 	}
 	void FindNextTarget ()
@@ -406,7 +424,14 @@ public class unitManager : MonoBehaviour {
 			_state = State.Idle;
 		}
 	}
-	void light(){
+	void mineLight(){
 		mrender.materials[0] = lightUp;
+	}
+
+	void OnCollisionEnter(Collision collision)
+	{
+		if (collision.gameObject.layer == 12) {
+			Physics.IgnoreCollision (collision.gameObject.GetComponent<Collider>(), GetComponent<Collider>());
+		}
 	}
 }

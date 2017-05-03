@@ -50,20 +50,22 @@ public class ResourceSpawner : MonoBehaviour {
 	public void Spawn () {
 		//Vector3 pee = new Vector3((transform.position.x + Random.Range (-scatter, scatter)),transform.position.y,(transform.position.x + Random.Range (-scatter, scatter)));
 		if (distributer ==1)
-			pee = new Vector3 ((transform.position.x + scatter), (transform.position.y+Random.Range(0, scatter)), (transform.position.z - scatter));
+			pee = new Vector3 ((transform.position.x + Random.Range(-scatter, scatter)), (transform.position.y+Random.Range(0, scatter)), (transform.position.z + Random.Range(-scatter, scatter)));
+
 		
 		if (distributer ==2)
-			pee = new Vector3 ((transform.position.x - scatter), transform.position.y, (transform.position.z + scatter));
-		
+			pee = new Vector3 ((transform.position.x + Random.Range(-scatter, scatter)), (transform.position.y+Random.Range(0, scatter)), (transform.position.z + Random.Range(-scatter, scatter)));
+
+
 		if (distributer ==3)
-			pee = new Vector3 ((transform.position.x + scatter), transform.position.y, (transform.position.z + scatter));
-		
+			pee = new Vector3 ((transform.position.x + Random.Range(-scatter, scatter)), (transform.position.y+Random.Range(0, scatter)), (transform.position.z + Random.Range(-scatter, scatter)));
+
 		if (distributer > 3) {
-			pee = new Vector3 ((transform.position.x - scatter), transform.position.y, (transform.position.z - scatter));
+			pee = new Vector3 ((transform.position.x + Random.Range(-scatter, scatter)), (transform.position.y+Random.Range(0, scatter)), (transform.position.z + Random.Range(-scatter, scatter)));
 			distributer = 1;
 		}
 
-		Instantiate(toSpawn, pee,Random.rotation);
-		toSpawn.transform.parent = gameObject.transform.parent;
+		GameObject spawnTemp = Instantiate(toSpawn, pee,Random.rotation);
+		spawnTemp.transform.parent = transform.parent;
 		distributer++;
 			}}

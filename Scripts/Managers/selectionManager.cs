@@ -5,11 +5,14 @@ using UnityEngine;
 public class selectionManager : MonoBehaviour {
 
 	public List<GameObject> unitsInPlay = new List<GameObject>();
+	public List<GameObject> structsInPlay = new List<GameObject>();
+	public List<GameObject> betaStructs = new List<GameObject>();
 	public List<GameObject> currentSelection = new List<GameObject>();
 	public List<GameObject> selectGroup = new List<GameObject>();
 
 	void OnEnable(){
 		eventManager.onUnitCreate += reCacheUnits;
+		eventManager.onBuildInit += reCacheStructs;
 		eventManager.onUnitDestroy += reCacheUnits;
 		eventManager.onUnitSelect += unitSelection;
 		eventManager.onGroupSelect += groupSelection;
@@ -20,6 +23,7 @@ public class selectionManager : MonoBehaviour {
 
 	void OnDisable(){
 		eventManager.onUnitCreate -= reCacheUnits;
+		eventManager.onBuildInit -= reCacheStructs;
 		eventManager.onUnitDestroy -= reCacheUnits;
 		eventManager.onUnitSelect -= unitSelection;
 		eventManager.onGroupSelect -= groupSelection;
@@ -30,6 +34,8 @@ public class selectionManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		unitsInPlay.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
+		reCacheStructs (transform.position, 1);
+		reCacheStructs (transform.position, 2);
 	}
 	
 	// Update is called once per frame
@@ -69,11 +75,12 @@ public class selectionManager : MonoBehaviour {
 		currentSelection.Clear();
 		Debug.Log ("Type SELECT CALLED");
 
-		Rect screenRect = new Rect(0,0, Screen.width, Screen.height);
+		Rect screenRect = new 
+			Rect(0,0, Screen.width, Screen.height);
 
 		foreach (GameObject Unit in unitsInPlay) {
 			Vector3 pos = Camera.main.WorldToScreenPoint(Unit.transform.position);
-			unitManager mgmt = Unit.GetComponent<unitManager> ();
+			unitLogic mgmt = Unit.GetComponent<unitLogic> ();
 			string mgType = mgmt._type.ToString ();
 			if (screenRect.Contains (pos) && mgType == type) {
 				currentSelection.Add(Unit);
@@ -94,5 +101,18 @@ public class selectionManager : MonoBehaviour {
 		unitsInPlay.Clear();
 		unitsInPlay.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
 		Debug.Log ("Units List Updated");
+	}
+	void reCacheStructs (Vector3 position, int type)
+	{
+		if (type == 2) {
+			structsInPlay.Clear ();
+			structsInPlay.AddRange(GameObject.FindGameObjectsWithTag ("Structure"));
+			Debug.Log ("Structs List Updated");
+		}
+		if (type == 1) {
+			betaStructs.Clear ();
+			betaStructs.AddRange(GameObject.FindGameObjectsWithTag ("betaStructure"));
+			Debug.Log ("BetaStructs List Updated");
+		}
 	}
 }
