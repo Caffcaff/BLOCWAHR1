@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class eventManager : MonoBehaviour {
 
-	public delegate void inputDelegate(Vector3 point, GameObject actor);
+	public delegate void inputDelegate(Vector3 point, GameObject actor, int playerID);
 
 		public static inputDelegate onNavClick;
 		public static inputDelegate onFollowClick;
@@ -86,7 +86,7 @@ public class eventManager : MonoBehaviour {
 		public static rawInputDelegate onMiddleClick;
 		public static rawInputDelegate onEscapeKey;
 
-	public delegate void spawnEventDelegate(GameObject prefab, Vector3 position);
+	public delegate void spawnEventDelegate(GameObject prefab, Vector3 position, int playerID);
 
 		public static spawnEventDelegate onUnitSpawn;
 
@@ -110,12 +110,33 @@ public class eventManager : MonoBehaviour {
 
 	public static wallDelegate onConfirmWall; 
 
+	public delegate void patrolDelegate(Vector3 pointA, Vector3 pointB);
+
+	public static patrolDelegate onPatrolEnter; 
+	public static patrolDelegate onServePatrol;
+
+	public delegate void cacheEventDelegate (int ID);
+
+	public static cacheEventDelegate onMapAI;
+	public static cacheEventDelegate onMarketCache;
+
+	public delegate void orderEventDelegate (Order order, GameObject[] units, int statusCode);
+
+	public static orderEventDelegate onInitOrder;
+	public static orderEventDelegate onServeOrder;
+	public static orderEventDelegate onReturnOrder;
+
+	public delegate void AiFactoryDelegate (FactoryOrder AIFactory);
+
+	public static AiFactoryDelegate onAIFactoryOrder;
+	public static AiFactoryDelegate onServeFactoryOrder;
+
 
 	// Input Event Methods
 
-	public static void NavClick (Vector3 point, GameObject actor) {
+	public static void NavClick (Vector3 point, GameObject actor, int playerID) {
 		if (onNavClick != null)
-			onNavClick (point, actor);
+			onNavClick (point, actor, playerID);
 	}
 	public static void NavArray (Vector3 point, GameObject actor, bool leader) {
 		if (onNavArray != null)
@@ -133,17 +154,17 @@ public class eventManager : MonoBehaviour {
 		if (onFlockArray != null)
 			onFlockArray (actor, slot);
 	}
-	public static void FollowClick (Vector3 point, GameObject actor) {
+	public static void FollowClick (Vector3 point, GameObject actor, int playerID) {
 		if (onFollowClick != null)
-			onFollowClick (point, actor);
+			onFollowClick (point, actor, playerID);
 	}
-	public static void AttackClick (Vector3 point, GameObject actor) {
+	public static void AttackClick (Vector3 point, GameObject actor, int playerID) {
 		if (onAttackClick != null)
-			onAttackClick (point, actor);
+			onAttackClick (point, actor, playerID);
 	}
-	public static void GroundAttackClick (Vector3 point, GameObject actor) {
+	public static void GroundAttackClick (Vector3 point, GameObject actor, int playerID) {
 		if (onGroundAttackClick != null)
-			onGroundAttackClick (point, actor);
+			onGroundAttackClick (point, actor, playerID);
 	}
 	public static void ButtonClick (GameObject button) {
 		if (onButtonClick != null)
@@ -280,9 +301,9 @@ public class eventManager : MonoBehaviour {
 		if (onFactoryConfirm != null)
 			onFactoryConfirm (factory, type);
 	}
-	public static void UnitSpawn (GameObject prefab, Vector3 location) {
+	public static void UnitSpawn (GameObject prefab, Vector3 location, int playerID) {
 		if (onUnitSpawn != null)
-			onUnitSpawn (prefab, location);
+			onUnitSpawn (prefab, location, playerID);
 	}
 	// Patrol Events
 	public static void PatrolSet (Vector3 origin, Vector3 destination) {
@@ -306,5 +327,45 @@ public class eventManager : MonoBehaviour {
 	public static void ConfirmWall (GameObject wall) {
 		if (onConfirmWall != null)
 			onConfirmWall (wall);
+	}
+	public static void PatrolEnter (Vector3 pointA, Vector3 pointB) {
+		if (onPatrolEnter != null)
+			onPatrolEnter (pointA, pointB);
+	}
+	public static void ServePatrol (Vector3 pointA, Vector3 pointB) {
+		if (onServePatrol != null)
+			onServePatrol (pointA, pointB);
+	}
+	public static void MapAI (int ID) {
+		if (onMapAI != null)
+			onMapAI (ID);
+	}
+	public static void MarketCache (int ID) {
+		if (onMarketCache != null)
+			onMarketCache (ID);
+	}
+	public static void InitOrder (Order order, GameObject[] units, int statusCode) {
+		if (onInitOrder != null)
+			onInitOrder (order, units, statusCode);
+	}
+	public static void ServeOrder (Order order, GameObject[] units, int statusCode) {
+		if (onServeOrder != null)
+			onServeOrder (order, units, statusCode);
+	}
+	public static void ReturnOrder (Order order, GameObject[] units, int statusCode) {
+		if (onReturnOrder != null)
+			onReturnOrder (order, units, statusCode);
+	}
+
+	// AI Factory
+
+	public static void AIFactoryOrder (FactoryOrder AIFactory) {
+		if (onAIFactoryOrder != null)
+			onAIFactoryOrder (AIFactory);
+	}
+
+	public static void ServeFactoryOrder (FactoryOrder AIFactory) {
+		if (onServeFactoryOrder != null)
+			onServeFactoryOrder (AIFactory);
 	}
 }

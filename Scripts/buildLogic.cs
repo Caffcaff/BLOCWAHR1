@@ -6,6 +6,9 @@ using Pathfinding;
 public class buildLogic : MonoBehaviour {
 
 	public bool selectState = false;
+	public bool built = false;
+	public int playerID;
+	public int outpostID;
 	public int hitPoints;
 	public GameObject selectIcon;
 	private GameObject activeIcon;
@@ -18,7 +21,6 @@ public class buildLogic : MonoBehaviour {
 	public Vector3 interfacePoint;
 	public GameObject interfaceMarker;
 	public bool activeOnLoad = false;
-
 
 	public enum Type {
 		Standard,
@@ -105,6 +107,7 @@ public class buildLogic : MonoBehaviour {
 
 	void buildComplete(){
 		finalBuild.SetActive(true);
+		built = true;
 		DestroyObject (buildMesh);
 		tag = "Structure";
 		eventManager.BuildInit (transform.position, 2);

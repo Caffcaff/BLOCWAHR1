@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class GUIResource : MonoBehaviour {
 
 	public resourceManager rManager;
+	public int playerID;
 	public Text rText;
 	public int rTotal;
 	public string currency = ("BW$ ");
@@ -23,16 +24,18 @@ public class GUIResource : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		GameObject temp = GameObject.FindGameObjectWithTag ("playerSeed");
+		playerID = temp.GetComponent<playerCommand>().playerID;
 		manager = GameObject.FindGameObjectWithTag ("resourceManager");
 		rManager = manager.GetComponent<resourceManager>();
 		rText = GetComponent<Text>();
-		rTotal = rManager.playerResource;
+		rTotal = rManager.resource[playerID];
 		refresh ();
 	}
 	
 	// Update is called once per frame
 	void rUpdate (int amount, int type) {
-		rTotal = rManager.playerResource;
+		rTotal = rManager.resource[playerID];
 		refresh ();
 	}
 	void refresh(){

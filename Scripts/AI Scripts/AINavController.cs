@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class navController : MonoBehaviour {
+public class AINavController : MonoBehaviour {
 
 	public GameObject navHalo;
+	public int playerID = 2;
+	public AIunitController aiController;
 	public float spread =5;
 	public float minScatter = 3f;
 	public selectionManager sManager;
@@ -32,44 +34,43 @@ public class navController : MonoBehaviour {
 
 
 	void OnEnable(){
-		eventManager.onNavClick += navArray;
-		eventManager.onAttackClick += surroundObject;
-		eventManager.onSetFormation += stackFormation;
-		eventManager.onRequestPosition += newPosition;
-		eventManager.onRequestNav += navPosition;
+		eventManager.onServeOrder += orderSwitch;
 	}
 
 	void OnDisable(){
-		eventManager.onNavClick -= navArray;
-		eventManager.onAttackClick -= surroundObject;
-		eventManager.onSetFormation -= stackFormation;
-		eventManager.onRequestPosition -= newPosition;
-		eventManager.onRequestNav -= navPosition;
+
+
+		eventManager.onServeOrder -= orderSwitch;
+
+		//eventManager.onNavClick -= navArray;
+		//eventManager.onAttackClick -= surroundObject;
 	}
 
 	// Use this for initialization
 	void Start () {
+		playerID = GetComponent<AICommand> ().playerID;
+
 		if (sManager == null) {
 			GameObject SMObj = GameObject.FindGameObjectWithTag ("SelectionManager");
 			sManager = SMObj.GetComponent<selectionManager>();
 		}
 	}
-	
+
 	// Update is called once per frame
-	void navArray (Vector3 hit, GameObject actor, int playerID) {
+	void navArray (Vector3 hit, GameObject[] units, int playerID) {
 		currArray.Clear();
 		int i = 0;
 		int r = 0;
 		bool oddColumns = false;
 
-//		var heading = sManager.currentSelection[0].transform.position - hit;
-//		var distance = heading.magnitude;
-//		Vector3 direction = heading / distance;
-//		direction.x = 0;
-//		direction.z = 0;
+		//		var heading = sManager.currentSelection[0].transform.position - hit;
+		//		var distance = heading.magnitude;
+		//		Vector3 direction = heading / distance;
+		//		direction.x = 0;
+		//		direction.z = 0;
 
 
-		foreach (GameObject unit in sManager.currentSelection) {
+		foreach (GameObject unit in units) {
 			if (i > 0 && r < columns) {
 				eventManager.ParticleEvent (hit, hit, 3);
 				eventManager.NavArray (hit, unit, false);
@@ -107,7 +108,7 @@ public class navController : MonoBehaviour {
 			}
 		}
 	}
-	void surroundObject(Vector3 point, GameObject target, int playerID){
+	void surroundObject(Vector3 point, GameObject[] units, GameObject target, int playerID){
 
 		int r = 0;
 		int i = 0;
@@ -123,10 +124,10 @@ public class navController : MonoBehaviour {
 
 		Vector3 center = target.transform.position;
 
-		foreach (GameObject unit in sManager.currentSelection){
+		foreach (GameObject unit in units){
 			r++;
 			Vector3 pos = RandomCircle(center, footPrint.extents.x);
-//			Quaternion rot = Quaternion.FromToRotation(Vector3.forward, center-pos);
+			//			Quaternion rot = Quaternion.FromToRotation(Vector3.forward, center-pos);
 			Vector3 hit = footPrint.ClosestPoint (pos);
 			if (i == 0) {
 				eventManager.AttackArray (hit, unit, true);
@@ -175,7 +176,7 @@ public class navController : MonoBehaviour {
 	void stackFormation(Vector3 hit, GameObject leader, bool unused){
 
 		foreach (GameObject unit in sManager.currentSelection) {
-				eventManager.FlockArray (unit, leader);
+			eventManager.FlockArray (unit, leader);
 		}	
 	}
 	void newPosition(GameObject actor, GameObject target, float range){
@@ -202,8 +203,8 @@ public class navController : MonoBehaviour {
 				}
 			}
 
+		}
 	}
-}
 	void navPosition(GameObject actor, Vector3 target, float range){
 		int i = 0;
 		pointGen:
@@ -230,33 +231,31 @@ public class navController : MonoBehaviour {
 
 		}
 	}
-}
 
-//		foreach (GameObject Unit in sManager.currentSelection) {	
-//			if (sManager.currentSelection.Count > 1) { 
-//				reGen:
-//				Vector3 randN = new Vector3 ((Random.Range (-spread, spread)), point.y, (Random.Range (-spread, spread)));
-//				Vector3 arrayPos = randN + point;
-//				if (currArray.Count != 0) {
-//					foreach (Vector3 navPoint in currArray) {
-//						delta = Vector3.Distance (arrayPos, navPoint);
-//						if (delta < minScatter) {
-//							Debug.Log ("Too Close - Finding new navpoint");
-//							goto reGen;
-//						} else {
-//							eventManager.ParticleEvent (arrayPos, arrayPos, 3);
-//							eventManager.NavArray (arrayPos, Unit);
-//						}
-//					}
-//				} else {
-//					eventManager.ParticleEvent (arrayPos, arrayPos, 3);
-//					eventManager.NavArray (arrayPos, Unit);
-//				}
-//				currArray.Add (arrayPos);		
-//			} else {
-//				eventManager.ParticleEvent (point, point, 3);
-//				eventManager.NavArray (point, Unit);
-//			}
-//		}
-//	
-//	}
+	void orderSwitch(Order order, GameObject[] units, int status){
+
+		if (order.playerID == playerID) {
+
+			if (order._type == Order.Type.Move || order._type == Order.Type.Recon) {
+
+				navArray (order.navTarget, units, order.playerID);
+			}
+			if (order._type != Order.Type.Move && order._type != Order.Type.Patrol && order._type != Order.Type.Recon) {
+
+				surroundObject(order.navTarget, units, order.unitTarget, order.playerID);
+
+			}
+
+
+		}
+
+
+
+
+
+
+
+
+
+	}
+}

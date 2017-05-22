@@ -8,7 +8,7 @@ public class wallLogic : MonoBehaviour {
 		
 		eventManager.onConfirmWall += bLogic;
 
-		Debug.Log("OnEnabled", gameObject);
+	//	Debug.Log("OnEnabled", gameObject);
 
 	}
 
@@ -16,7 +16,7 @@ public class wallLogic : MonoBehaviour {
 
 		eventManager.onConfirmWall -= bLogic;
 
-		Debug.Log("OFF", gameObject);
+	//	Debug.Log("OFF", gameObject);
 
 	}
 

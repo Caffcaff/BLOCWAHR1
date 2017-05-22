@@ -82,7 +82,7 @@ public class playerManager : MonoBehaviour {
 		eventManager.onDamage += DamageEvent;
 
 
-		Debug.Log("OnEnabled", gameObject);
+	//	Debug.Log("OnEnabled", gameObject);
 
 	}
 
@@ -94,7 +94,7 @@ public class playerManager : MonoBehaviour {
 		eventManager.onSelectEvent += selectEvent;
 		eventManager.onDamage -= DamageEvent;
 
-		Debug.Log("OFF", gameObject);
+	//	Debug.Log("OFF", gameObject);
 		
 	}
 
@@ -158,26 +158,26 @@ public class playerManager : MonoBehaviour {
 	{
 		Debug.Log ("Attacking", gameObject);
 	}
-	void navMove (Vector3 point, GameObject actor) {
+	void navMove (Vector3 point, GameObject actor, int playerID) {
 		Debug.Log ("pManager Move");
 		if (selectState == true) {
 			navTarget = point;
 			_state = State.Move;
 		}
 	}
-	void navFollow (Vector3 point, GameObject actor) {
+	void navFollow (Vector3 point, GameObject actor, int playerID) {
 		if (selectState == true) {
 			followTarget = actor;
 			_state = State.Follow;
 		}
 	}
-	void attackClick (Vector3 point, GameObject actor) {
+	void attackClick (Vector3 point, GameObject actor, int ID) {
 		if (selectState == true) {
 			attackTarget = actor;
 			_state = State.Attack;
 		}
 	}
-	void groundAttackClick (Vector3 point, GameObject actor) {
+	void groundAttackClick (Vector3 point, GameObject actor, int ID) {
 		if (selectState == true) {
 			gndAttackTarget = point;
 			_state = State.Attack;
@@ -212,7 +212,7 @@ public class playerManager : MonoBehaviour {
 		}
 		if (reciever.tag == "ResourceG") {
 			Debug.Log ("THARBEGOLDINDEMHILLS");
-			eventManager.Collect (damage,2);
+			eventManager.Collect (damage, 2);
 		}
 		if (sender == this.gameObject && reciever.tag != "Resource" && reciever.tag != "ResourceG" && reciever.tag != "Friendly") {
 			EXP++;

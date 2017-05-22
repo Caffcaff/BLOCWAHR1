@@ -11,6 +11,8 @@ public class particleManager : MonoBehaviour {
 	public GameObject Tracer;
 	public GameObject navHalo;
 
+	public LineRenderer pLineRender;
+
 	void OnEnable(){
 		eventManager.onParticleEvent += events;
 	}
@@ -20,6 +22,9 @@ public class particleManager : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
+		GameObject temp = GameObject.Find ("LineRenderer");
+		pLineRender = temp.GetComponent<LineRenderer> ();
+
 	}
 	// Update is called once per frame
 	void events (Vector3 sender, Vector3 reciever, int type)
@@ -81,16 +86,24 @@ public class particleManager : MonoBehaviour {
 		//	fire ();
 		}
 		if (type == 18) {
-			Debug.Log ("Particle Event 18");
+			patrolLine(sender,reciever);
 		//	gunFire ();
 		}
 		if (type == 19) {
-			Debug.Log ("Particle Event 19");
-		//	gunFire ();
+			pLineClear();
 		}
 		if (type == 20) {
 			Debug.Log ("Particle Event 20");
 		//	gunFire ();
 		}
+	}
+
+	void patrolLine(Vector3 pointA, Vector3 PointB){
+		pLineRender.numPositions = 2;
+		pLineRender.SetPosition (0, pointA);
+		pLineRender.SetPosition (1, PointB);
+	}
+	void pLineClear(){
+		pLineRender.numPositions = 0;
 	}
 }

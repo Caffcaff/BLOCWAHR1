@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class selectionManager : MonoBehaviour {
 
+	public int playerID = 1;
+
 	public List<GameObject> unitsInPlay = new List<GameObject>();
 	public List<GameObject> structsInPlay = new List<GameObject>();
 	public List<GameObject> betaStructs = new List<GameObject>();
@@ -33,7 +35,20 @@ public class selectionManager : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		unitsInPlay.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
+
+		GameObject temp = GameObject.FindGameObjectWithTag ("playerSeed");
+		playerID = temp.GetComponent<playerCommand>().playerID;
+
+		List<GameObject> tempList = new List<GameObject>();
+		tempList.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
+
+		foreach(GameObject unit in tempList){
+			unitLogic ai = unit.GetComponent<unitLogic> ();
+			if (ai.playerID == playerID) {
+				unitsInPlay.Add (unit);
+			}
+		}
+
 		reCacheStructs (transform.position, 1);
 		reCacheStructs (transform.position, 2);
 	}
@@ -45,7 +60,10 @@ public class selectionManager : MonoBehaviour {
 
 	void unitSelection (GameObject selected) {
 		currentSelection.Clear();
-		currentSelection.Add(selected);
+		unitLogic logic = selected.GetComponent<unitLogic>();
+		if (logic.playerID == playerID) {
+			currentSelection.Add(selected);
+		}
 		eventManager.SelectEvent (this.gameObject);
 		Debug.Log ("Units Selected");
 	}
@@ -62,9 +80,11 @@ public class selectionManager : MonoBehaviour {
 			//pos.y = Screen.height - pos.y;
 
 			if (aimRect.Contains (pos)) {
-				currentSelection.Add(Unit);
+				unitLogic logic = Unit.GetComponent<unitLogic> ();
+				if (logic.playerID == playerID) {
+					currentSelection.Add(Unit);
+				}
 			}
-	
 		
 		}
 		Debug.Log ("Units Selected");
@@ -99,19 +119,61 @@ public class selectionManager : MonoBehaviour {
 
 	void reCacheUnits (GameObject unit, bool state) {
 		unitsInPlay.Clear();
-		unitsInPlay.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
+
+		List<GameObject> tempList = new List <GameObject> ();
+		tempList.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
+
+		foreach(GameObject Unit in tempList){
+			unitLogic ai = Unit.GetComponent<unitLogic> ();
+			if (ai.playerID == playerID) {
+				unitsInPlay.Add (Unit);
+			}
+		}
 		Debug.Log ("Units List Updated");
 	}
 	void reCacheStructs (Vector3 position, int type)
 	{
 		if (type == 2) {
 			structsInPlay.Clear ();
-			structsInPlay.AddRange(GameObject.FindGameObjectsWithTag ("Structure"));
+
+			List<GameObject> tempList = new List<GameObject> ();
+			tempList.AddRange(GameObject.FindGameObjectsWithTag ("Structure"));
+
+			if (tempList.Count != 0) {
+
+				foreach (GameObject unit in tempList) {
+
+					if (unit.GetComponent<buildLogic> () != null) {
+
+						if (unit.GetComponent<buildLogic> ().playerID == playerID) {
+							structsInPlay.Add (unit);	
+						}
+					}
+				}
+			}
+
 			Debug.Log ("Structs List Updated");
 		}
+
 		if (type == 1) {
 			betaStructs.Clear ();
-			betaStructs.AddRange(GameObject.FindGameObjectsWithTag ("betaStructure"));
+
+			List<GameObject> tempList = new List<GameObject> ();
+			tempList.AddRange(GameObject.FindGameObjectsWithTag ("betaStructure"));
+
+			if (tempList.Count != 0) {
+
+				foreach (GameObject unit in tempList) {
+
+					if (unit.GetComponent<buildLogic> () != null) {
+
+						if (unit.GetComponent<buildLogic> ().playerID == playerID) {
+							betaStructs.Add (unit);	
+						}
+					}
+				}
+			}
+
 			Debug.Log ("BetaStructs List Updated");
 		}
 	}

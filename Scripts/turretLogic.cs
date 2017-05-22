@@ -23,10 +23,10 @@ public class turretLogic : MonoBehaviour {
 			turn ();
 		}
 	}
+
 	void turn() {
 
 	Vector3 looktarget = new Vector3(target.transform.position.x, target.transform.position.y, target.transform.position.z);
-		transform.LookAt(looktarget);
-
+	transform.LookAt(looktarget);
 	}
 }

@@ -6,6 +6,10 @@ using System;
 public class unitLogic : MonoBehaviour {
 
 	public bool selectState = false;
+	public bool onMission;
+	public Order cMemory; //AI Component
+	public int playerID = 1;
+	public int techLevel = 1;
 	public bool isLeader = false;
 	public bool isMoving = false;
 	public int EXP = 0;
@@ -108,6 +112,13 @@ public class unitLogic : MonoBehaviour {
 	public AIPathfinder pathfinder;
 	private Rigidbody rb;
 
+	public GameObject skin1;
+	public GameObject skin2;
+	public GameObject skin3;
+	public GameObject skin4;
+
+	public GameObject[] Skins = new GameObject[5];
+
 	void OnEnable(){
 		eventManager.onNavArray += navSet;
 		eventManager.onAttackArray += attackNav;
@@ -116,11 +127,15 @@ public class unitLogic : MonoBehaviour {
 		eventManager.onSelectEvent += selectEvent;
 		eventManager.onDamage += damageEvent;
 		eventManager.onUnitDestroy += targetCheck;
-		eventManager.onPatrolSet += patrolSet;
+		eventManager.onServePatrol += patrolSet;
 		eventManager.onServePosition += rePosition;
 
+// AI events
 
-		Debug.Log("OnEnabled", gameObject);
+		eventManager.onServeOrder += serveOrder;
+
+
+		//Debug.Log("OnEnabled", gameObject);
 
 	}
 
@@ -132,10 +147,14 @@ public class unitLogic : MonoBehaviour {
 		eventManager.onSelectEvent -= selectEvent;
 		eventManager.onDamage -= damageEvent;
 		eventManager.onUnitDestroy -= targetCheck;
-		eventManager.onPatrolSet -= patrolSet;
+		eventManager.onServePatrol -= patrolSet;
 		eventManager.onServePosition -= rePosition;
 
-		Debug.Log("OFF", gameObject);
+// AI events
+
+		eventManager.onServeOrder -= serveOrder;
+
+	//	Debug.Log("OFF", gameObject);
 
 	}
 
@@ -183,7 +202,6 @@ public class unitLogic : MonoBehaviour {
 	// Core States & State Logic
 
 	private void initMe(){
-
 		GameObject temp = GameObject.Find ("Selection Manager");
 		sManager = temp.GetComponent<selectionManager> ();
 		pathfinder = GetComponent<AIPathfinder> ();
@@ -191,16 +209,49 @@ public class unitLogic : MonoBehaviour {
 		_state = State.Setup;
 		reload = fireRate;
 		repathTick = repathTimer;
+
+		Skins [0] = skin1;
+		Skins [1] = skin1;
+		Skins [2] = skin2;
+		Skins [3] = skin3;
+		Skins [4] = skin4;
+
 	}
 	private void inSetup(){
+		int i = 0;
+
+		while(i<5) {
+				if (i == playerID) {
+					Skins[i].SetActive (true);
+				} else {
+					Skins[i].SetActive (false);
+				}
+			i++;
+		}
+
 		_logicState = logicState.Idle;
 		_state = State.Idle;
 	}
 
 	private void idleState(){
+
 		Vector3 pos = transform.position;
 		pos.y = Terrain.activeTerrain.SampleHeight(transform.position);
 		transform.position = pos;
+
+
+		if (onMission == true) {
+
+			if (cMemory._type == Order.Type.Recon) {
+				eventManager.ReturnOrder (cMemory, null, 1);
+			}
+			if (cMemory._type == Order.Type.Build) {
+				eventManager.ReturnOrder (cMemory, null, 1);
+			}
+				
+			onMission = false;
+		}
+
 	}
 
 
@@ -376,7 +427,7 @@ public class unitLogic : MonoBehaviour {
 			}
 		}
 		if (target == null) {
-			scanInstance vicinity = targetScan ();
+			scanInstance vicinity = targetScan (transform.position);
 			if (vicinity.hasTarget == true) {
 				target = vicinity.nearest;
 			} else {
@@ -407,9 +458,11 @@ public class unitLogic : MonoBehaviour {
 	private void stateMine(){
 
 		if (cargo >= rCapacity) {
+			
 			navMemo1 = navScan ();
 			_mineState = mineState.seek;
 			Debug.Log ("out 2 : Seek");
+			return;
 		}
 
 
@@ -434,7 +487,7 @@ public class unitLogic : MonoBehaviour {
 				Debug.Log ("out 2 : Seek");
 			}
 		} else {
-			scanInstance temp = targetScan();
+			scanInstance temp = targetScan(transform.position);
 			if (temp.hasTarget == true){
 				Debug.Log ("found nearest target");
 				target = temp.nearest;
@@ -513,7 +566,7 @@ public class unitLogic : MonoBehaviour {
 			turn ();
 			reload -= Time.deltaTime;
 			if (reload <= 0 && cargo > 0) {
-				eventManager.Collect (damage, 1);
+				eventManager.Collect (damage, playerID);
 				cargo -= damage;
 				reload = fireRate;	
 			}
@@ -533,9 +586,11 @@ public class unitLogic : MonoBehaviour {
 
 		if (target != null) {
 			if (target.tag != "betaStructure") {
-				scanInstance tempScan = targetScan ();
+				scanInstance tempScan = targetScan (transform.position);
 				if (tempScan.hasTarget == true) {
 					target = tempScan.nearest;
+					eventManager.onRequestPosition (this.gameObject, target, attackRange);
+					_state = State.Move;
 				} else {
 					_logicState = logicState.Idle;
 					_state = State.Idle;
@@ -549,7 +604,7 @@ public class unitLogic : MonoBehaviour {
 			}
 		}
 		else{
-			scanInstance tempScan = targetScan();
+			scanInstance tempScan = targetScan(transform.position);
 			if(tempScan.hasTarget == true){
 				target = tempScan.nearest;
 			}
@@ -560,6 +615,14 @@ public class unitLogic : MonoBehaviour {
 		}
 	}
 	private void inPatrolState(){
+
+		Vector3 temp = patrolA;
+		patrolA = patrolB;
+		patrolB = temp;
+
+		navTarget = patrolB;
+	
+		_state = State.Move;
 		
 	}
 	private void doneState(){
@@ -621,13 +684,32 @@ public class unitLogic : MonoBehaviour {
 
 
 	void patrolSet (Vector3 pointA, Vector3 pointB){
-		patrolA = pointA;
-		patrolB = pointB;
-		_logicState = logicState.Patrol;
-		_state = State.Patrol;
-	}
-	void attackClick(Vector3 point, GameObject actor){
+
+
 		if (selectState == true) {
+			patrolA = pointA;
+			patrolB = pointB;
+		
+			float aDist = Vector3.Distance (transform.position, pointA);
+			float bDist = Vector3.Distance (transform.position, pointB);
+
+			if (aDist < bDist) {
+				Vector3 temp = patrolA;
+				patrolA = patrolB;
+				patrolB = temp;
+
+				navTarget = patrolB;
+
+			} else {
+				navTarget = pointB;
+			}
+
+			_logicState = logicState.Patrol;
+			_state = State.Move;
+		}
+	}
+	void attackClick(Vector3 point, GameObject actor, int ID){
+		if (selectState == true && ID == playerID) {
 			if (_type == Type.mGun | _type == Type.Missile) {
 				target = actor;}
 			if (_type == Type.Miner && actor.tag == "Resource") {
@@ -637,7 +719,9 @@ public class unitLogic : MonoBehaviour {
 				target = actor;
 			}
 			if (_type == Type.Utility && actor.tag == "betaStructure") {
+				Debug.Log ("Target Set - State Switched");
 				target = actor;
+				navTarget = actor.transform.position;
 				_logicState = logicState.Build;
 				_state = State.Move;
 				}
@@ -650,7 +734,7 @@ public class unitLogic : MonoBehaviour {
 		}
 		
 	}
-	void groundAttackClick(Vector3 point, GameObject actor){
+	void groundAttackClick(Vector3 point, GameObject actor, int ID){
 		
 	}
 	void selectEvent(GameObject selectedUnit){
@@ -683,7 +767,7 @@ public class unitLogic : MonoBehaviour {
 
 
 	void targetCheck(GameObject actor, bool state){
-		scanInstance currScan = targetScan ();
+		scanInstance currScan = targetScan (transform.position);
 		bool hasTarget = currScan.hasTarget;
 
 		if (!hasTarget && _logicState != logicState.Attack) {
@@ -735,7 +819,7 @@ public class unitLogic : MonoBehaviour {
 		return scanreturn;
 	}
 
-	scanInstance targetScan(){
+	scanInstance targetScan(Vector3 position){
 
 		bool hasTarget;
 		GameObject nearestTarget;
@@ -744,7 +828,7 @@ public class unitLogic : MonoBehaviour {
 		GameObject[] enemies;
 		GameObject[] friendlies;
 		GameObject[] resourceUnits;
-		float distance;
+		float distance = Mathf.Infinity;
 		enemies = GameObject.FindGameObjectsWithTag (AITag);
 		friendlies = GameObject.FindGameObjectsWithTag (playerTag);
 		resourceUnits = GameObject.FindGameObjectsWithTag ("Resource");
@@ -755,8 +839,7 @@ public class unitLogic : MonoBehaviour {
 
 		if (_type == Type.mGun | _type == Type.Missile) {
 			GameObject closest = null;
-			distance = Mathf.Infinity;
-			Vector3 position = transform.position;
+		//	Vector3 position = transform.position;
 			foreach (GameObject go in enemies) {
 				Vector3 diff = go.transform.position - position;
 				float curDistance = diff.sqrMagnitude;
@@ -770,7 +853,7 @@ public class unitLogic : MonoBehaviour {
 		if (_type == Type.Miner) {
 			GameObject closest = null;
 			bool currClosest = true;
-			Vector3 position = transform.position;
+		//	Vector3 position = transform.position;
 			float currLeader = Mathf.Infinity;
 			foreach (GameObject go in resourceUnits) {
 				float curDistance = Vector3.Distance(position, go.transform.position);
@@ -785,7 +868,7 @@ public class unitLogic : MonoBehaviour {
 		if (_type == Type.Utility) {
 			GameObject closest = null;
 			bool currClosest = true;
-			Vector3 position = transform.position;
+		//	Vector3 position = transform.position;
 			float currLeader = Mathf.Infinity;
 			foreach (GameObject go in sManager.betaStructs) {
 				float curDistance = Vector3.Distance(position, go.transform.position);
@@ -797,8 +880,10 @@ public class unitLogic : MonoBehaviour {
 				}
 			}
 		}
-		if (distance <= reTargetRange) {
+		if (distance <= reTargetRange && nearestTarget != this.gameObject) {
 			hasTarget = true;
+		} else {
+				hasTarget = false;
 		}
 		scanInstance scanReturn = new scanInstance (hasTarget, nearestTarget, friendlyCount, targetCount);
 		return scanReturn;
@@ -852,15 +937,23 @@ public class unitLogic : MonoBehaviour {
 	}
 
 	public GameObject findRefinery(){
+
+		List<GameObject> allStructs = new List<GameObject> ();
 		List<GameObject> Depots = new List<GameObject>();
-		if (sManager.structsInPlay.Count > 0) {
-			foreach (GameObject depot in sManager.structsInPlay) {
-				if (depot != null) {
-					if (depot.name == "Refinery(Clone)" || depot.name == "Refinery") {
-						Depots.Add (depot);
-					}
+
+		allStructs.AddRange (GameObject.FindGameObjectsWithTag ("Structure"));
+
+		foreach (GameObject part in allStructs) {
+			if (part.name == "Refinery(Clone)" || part.name == "Refinery") {
+				if (part.GetComponent<buildLogic> ().playerID == playerID) {
+					Depots.Add (part);
 				}
 			}
+		}
+
+
+		if (Depots.Count > 0) {
+
 			GameObject closest = null;
 			float distance = Mathf.Infinity;
 			Vector3 position = transform.position;
@@ -905,4 +998,78 @@ public class unitLogic : MonoBehaviour {
 		}
 		return moving;
 	}
+
+
+// ******* AI FUNCTIONS ********* //
+
+	void serveOrder(Order order, GameObject[] units, int statusCode){
+
+		Debug.Log ("Unit Logic");
+
+// Add AI order to memory, set nav, target, states.
+
+		if (order.playerID == playerID) {
+
+			Debug.Log ("Recieved Order");
+
+			List<GameObject> someList = new List<GameObject>(units);
+
+			if (someList.Contains (this.gameObject)) {
+				Debug.Log ("On List");
+				onMission = true;
+				cMemory = order;
+
+				if (cMemory._type == Order.Type.Recon) {
+
+					Debug.Log ("Recieved Recon Mission " + this.gameObject);
+					navSet (cMemory.navTarget, this.gameObject, false);
+
+				}
+
+				if (cMemory._type == Order.Type.Patrol) {
+
+					selectState = true;
+					patrolSet (cMemory.patrolA, cMemory.patrolB);
+					selectState = false;
+
+				}
+
+				if (cMemory._type == Order.Type.Attack || cMemory._type == Order.Type.Build) {
+					Debug.Log ("Command Event");
+					Debug.Log (cMemory.unitTarget);
+					selectState = true;
+					attackClick (cMemory.navTarget, cMemory.unitTarget, playerID);
+					selectState = false;
+				}
+
+				if (cMemory._type == Order.Type.Mine) {
+
+					scanInstance focalScan = targetScan (cMemory.navTarget);
+					cMemory.unitTarget = focalScan.nearest;
+
+					selectState = true;
+
+					if (_type == Type.Miner) {
+						attackClick (cMemory.navTarget, cMemory.unitTarget, playerID);
+						selectState = false;
+					} 
+					else {
+						selectState = true;
+						Debug.Log (cMemory.patrolA +":"+ cMemory.patrolB);
+
+
+						patrolSet (cMemory.patrolA, cMemory.patrolB);
+						selectState = false;
+					}
+
+				}
+			
+			} else {
+				Debug.Log ("Not in List");
+			}
+		
+		}
+
+	}
+		
 }

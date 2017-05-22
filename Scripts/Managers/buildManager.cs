@@ -4,10 +4,13 @@ using UnityEngine;
 
 public class buildManager : MonoBehaviour {
 
+	public int playerID;
+
 	[Header("Manager Config")]
 	public string groundTag = ("buildPlane");
 	public gameManager gManager;
 	public resourceManager rManager;
+	public marketManager mManager;
 	public bool onPlane = false;
 	public float rotationStep = 45;
 	private GameObject buildCursor;
@@ -91,7 +94,7 @@ public class buildManager : MonoBehaviour {
 	[Tooltip("unused")]
 	public int Type20;
 
-	[Header("Structure Prices")]
+	[Header("Structure Prefabs")]
 	[Tooltip("Headquarters")]
 	public GameObject bType1;
 	[Tooltip("PowerStation")]
@@ -126,8 +129,6 @@ public class buildManager : MonoBehaviour {
 	public GameObject bType19;
 	[Tooltip("unused")]
 	public GameObject bType20;
-
-
 
 	public enum State {
 		Initialise,
@@ -208,8 +209,15 @@ public class buildManager : MonoBehaviour {
 		_state = State.Setup;
 	}
 	void setMeUp () {
+
+
+
+		GameObject temp = GameObject.FindGameObjectWithTag ("playerSeed");
+		playerID = temp.GetComponent<playerCommand>().playerID;
+
 		GameObject resourceM = GameObject.FindGameObjectWithTag ("resourceManager");
 		rManager = resourceM.GetComponent<resourceManager> ();
+		mManager = resourceM.GetComponent<marketManager> ();
 		structContainer = GameObject.FindGameObjectWithTag ("StructContainer");
 		wallContainer = GameObject.FindGameObjectWithTag ("WallContainer");
 		allPreviews = new GameObject ();
@@ -234,7 +242,7 @@ public class buildManager : MonoBehaviour {
 				if (buildType == 8 | buildType == 10 | buildType == 6 | buildType == 2 | buildType == 3) {
 					buildCursor = Instantiate (buildCursorM, hit.point, transform.rotation);
 				}
-				if (buildType == 1 | buildType == 5 | buildType == 7 | buildType == 9) {
+				if (buildType == 1 | buildType == 5 | buildType == 7 | buildType == 9 | buildType == 12) {
 					buildCursor = Instantiate (buildCursorS, hit.point, transform.rotation);
 				}
 				if (buildType == 11 | buildType == 15) {
@@ -271,196 +279,18 @@ public class buildManager : MonoBehaviour {
 
 		if (_state != State.Wall) {
 
-			if (buildType == 1) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type1, 1);
-					GameObject newBuild = Instantiate (bType1, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 2) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type2, 1);
-					GameObject newBuild = Instantiate (bType2, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-
-				}
-			}
-			if (buildType == 3) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type3, 1);
-					GameObject newBuild = Instantiate (bType3, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-
-				}
-			}
-			if (buildType == 5) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type5, 1);
-					GameObject newBuild = Instantiate (bType5, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-
-				}
-			}
-			if (buildType == 6) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type6, 1);
-					GameObject newBuild = Instantiate (bType6, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 7) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type7, 1);
-					GameObject newBuild = Instantiate (bType7, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 8) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type8, 1);
-					GameObject newBuild = Instantiate (bType8, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 9) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type9, 1);
-					GameObject newBuild = Instantiate (bType9, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 10) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type10, 1);
-					GameObject newBuild = Instantiate (bType10, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 11) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type11, 1);
-					GameObject newBuild = Instantiate (bType11, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 12) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type12, 1);
-					GameObject newBuild = Instantiate (bType12, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-
-			}
-			if (buildType == 15) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type15, 1);
-					GameObject newBuild = Instantiate (bType15, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 16) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type16, 1);
-					GameObject newBuild = Instantiate (bType16, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 17) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type17, 1);
-					GameObject newBuild = Instantiate (bType17, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 18) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type18, 1);
-					GameObject newBuild = Instantiate (bType18, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 19) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type19, 1);
-					GameObject newBuild = Instantiate (bType19, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
-			}
-			if (buildType == 20) {
-				if (Type1 <= rManager.playerResource) {
-					eventManager.onSpend (Type20, 1);
-					GameObject newBuild = Instantiate (bType20, requestLocation, buildCursor.transform.rotation);
-					newBuild.transform.parent = structContainer.transform;
-					eventManager.onBuildConfirm (requestLocation, buildType);
-					Destroy (buildCursor);
-					Destroy (negBuildCursor);
-					_state = State.Idle;
-				}
+			if (mManager.structs [buildType].cost <= rManager.resource [playerID]) {
+				eventManager.Spend (mManager.structs [buildType].cost, playerID);
+				GameObject newBuild = Instantiate (mManager.structs [buildType].prefab, requestLocation, buildCursor.transform.rotation);
+				newBuild.transform.parent = structContainer.transform;
+				newBuild.GetComponent<buildLogic> ().playerID = playerID;
+				eventManager.onBuildConfirm (requestLocation, buildType);
+				buildCursor.SetActive (false);
+				negBuildCursor.SetActive (false);
+				_state = State.Idle;
+			} else {
+				Debug.Log ("Not enough BW$");
+				_state = State.BuildCursor;
 			}
 		}
 	}
@@ -480,8 +310,8 @@ public class buildManager : MonoBehaviour {
 
 	void bCancel (Vector3 Point, int Type) {
 		if (_state != State.Wall) {
-			Destroy (buildCursor);
-			Destroy (negBuildCursor);
+			buildCursor.SetActive (false);
+			negBuildCursor.SetActive (false);
 			eventManager.onButtonExit (this.gameObject);
 			_state = State.Idle;
 		} else {
@@ -491,7 +321,7 @@ public class buildManager : MonoBehaviour {
 	void bSubmit(Vector3 point){
 		if (_state != State.Wall) {
 			if (canBuild == true && hasCollision == false) {
-				eventManager.onBuildRequest (requestLocation, buildType);
+				eventManager.BuildRequest (requestLocation, buildType);
 			}
 		} else {
 
@@ -521,9 +351,9 @@ public class buildManager : MonoBehaviour {
 	}
 	void escCancel (Vector3 point) {
 		if (_state != State.Wall) {
-			Destroy (buildCursor);
-			Destroy (negBuildCursor);
-			eventManager.onButtonExit (this.gameObject);
+			buildCursor.SetActive (false);
+			negBuildCursor.SetActive (false);
+			eventManager.ButtonExit (this.gameObject);
 			_state = State.Idle;
 		} else {
 			_wall = wallState.clear;
@@ -661,6 +491,7 @@ public class buildManager : MonoBehaviour {
 					
 							GameObject wallSeg = Instantiate (wallMarker, subPoint, direction);
 							wallSeg.transform.parent = livePreviews.transform;
+
 						}
 					}
 				}
@@ -680,13 +511,14 @@ public class buildManager : MonoBehaviour {
 				Destroy (point, 0.2f);
 			} else {
 				if (_wall == wallState.wallCheck) {
-					if (rManager.playerResource > Type11) {
-						eventManager.Spend (Type11, 1);
+					if (rManager.resource[playerID] > Type11) {
+						eventManager.Spend (Type11, playerID);
 						point.name = ("wall");
 						point.transform.parent = wallContainer.transform;
 						point.tag = ("betaStructure");
 						point.layer = 9;
 						nodePoints.Add (point.transform.position);
+						point.GetComponent<buildLogic> ().playerID = playerID;
 						eventManager.ConfirmWall (point);
 
 					} else {
@@ -697,9 +529,11 @@ public class buildManager : MonoBehaviour {
 		}
 		if (_wall == wallState.wallCheck) {
 
-			Destroy (buildCursor);
 			Destroy (wCursor);
-			Destroy (negBuildCursor);
+			buildCursor.SetActive (false);
+			negBuildCursor.SetActive (false);
+
+
 			eventManager.onBuildConfirm (requestLocation, buildType);
 
 			requestPoints.Clear ();
@@ -723,13 +557,16 @@ public class buildManager : MonoBehaviour {
 			i++;
 		}
 
-		Destroy (buildCursor);
 		Destroy (wCursor);
-		Destroy (negBuildCursor);
+		buildCursor.SetActive (false);
+		negBuildCursor.SetActive (false);
+	
+
 		eventManager.onButtonExit(this.gameObject);
 		_state = State.Idle;
 
 		requestPoints.Clear ();
+		points.Clear ();
 
 	}
 

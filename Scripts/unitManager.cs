@@ -119,7 +119,7 @@ public class unitManager : MonoBehaviour {
 		eventManager.onDamage += DamageEvent;
 
 
-		Debug.Log("OnEnabled", gameObject);
+		//Debug.Log("OnEnabled", gameObject);
 
 	}
 
@@ -131,7 +131,7 @@ public class unitManager : MonoBehaviour {
 		eventManager.onSelectEvent += selectEvent;
 		eventManager.onDamage -= DamageEvent;
 
-		Debug.Log("OFF", gameObject);
+		//Debug.Log("OFF", gameObject);
 		
 	}
 
@@ -183,7 +183,7 @@ public class unitManager : MonoBehaviour {
 		}		
 	}
 
-	void navFollow (Vector3 point, GameObject actor) {
+	void navFollow (Vector3 point, GameObject actor, int ID) {
 		if (selectState == true) {
 			targetPosition = actor.transform.position;
 			followTarget = actor;
@@ -285,14 +285,14 @@ public class unitManager : MonoBehaviour {
 		Debug.Log ("Attacking", gameObject);
 	}
 		
-	void attackClick (Vector3 point, GameObject actor) {
+	void attackClick (Vector3 point, GameObject actor, int ID) {
 		if (selectState == true) {
 			attackTarget = actor;
 			_state = State.Attack;
 			followrate = 0;
 		}
 	}
-	void groundAttackClick (Vector3 point, GameObject actor) {
+	void groundAttackClick (Vector3 point, GameObject actor, int ID) {
 		if (selectState == true) {
 			gndAttackTarget = point;
 			_state = State.Attack;

@@ -16,6 +16,7 @@ public class GUIManager : MonoBehaviour {
 		}
 	}
 
+	public int playerID;
 
 	[Header("GUI Input Settings")]
 	private GameObject rTextObj;
@@ -89,6 +90,9 @@ public class GUIManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+
+		GameObject temp = GameObject.FindGameObjectWithTag ("playerSeed");
+		playerID = temp.GetComponent<playerCommand>().playerID;
 
 		// Identify Buttons & UI elements
 		rTextObj = GameObject.FindGameObjectWithTag ("rText");
@@ -190,6 +194,10 @@ public class GUIManager : MonoBehaviour {
 		}
 		if (button.name == ("destroyButton")){
 			onDestroy ();
+		}
+		if (button.name == "Patrol") {
+			Debug.Log ("Patrol clicked");
+			eventManager.onPatrolEnter (transform.position, transform.position);
 		}
 
 		//Build GUI Buttons
@@ -410,6 +418,7 @@ public class GUIManager : MonoBehaviour {
 		}
 	}
 	void initFactoryUI(GameObject factory){
+		
 		fManager = factory.GetComponent<factoryManager> ();
 		factoryGUI.SetActive (true);
 		factoryTech1.SetActive (true);
@@ -439,7 +448,11 @@ public class GUIManager : MonoBehaviour {
 
 	void updateIcons(GameObject factory, buildType type){
 
-		if (fManager.buildList.Count < 1) {
+		if(factory.GetComponent<buildLogic>().playerID == playerID){
+
+		factoryManager tFManager = factory.GetComponent<factoryManager> ();
+
+		if (tFManager.buildList.Count < 1) {
 			foreach (GameObject icon in buildIcons) {
 				icon.SetActive (false);
 			}
@@ -447,14 +460,15 @@ public class GUIManager : MonoBehaviour {
 			Debug.Log ("Stage 3");
 			int i = 0;
 			foreach (Image icon in GUIIcons) {
-				if (i < fManager.buildList.Count) {
+				if (i < tFManager.buildList.Count) {
 					icon.gameObject.SetActive (true);
-					icon.sprite = fManager.buildList [i].Type.icon;
+					icon.sprite = tFManager.buildList [i].Type.icon;
 					Debug.Log ("Icon Updated");
 					i++;
 				} else {
 					icon.gameObject.SetActive (false);
 				}
+			}
 		}
 	}
 	}

@@ -8,6 +8,8 @@ public class unitSpawner : MonoBehaviour {
 	public GameObject resources;
 	public GameObject structures;
 
+	public GameObject[] unitList = new GameObject[35];
+
 	void OnEnable(){
 		eventManager.onUnitSpawn += onSpawn;
 	}
@@ -22,10 +24,11 @@ public class unitSpawner : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void onSpawn (GameObject prefab, Vector3 location) {
+	void onSpawn (GameObject prefab, Vector3 location, int playerID) {
 		GameObject spawnee = Instantiate (prefab, location, transform.rotation);
 		if (spawnee.tag == "Friendly" | spawnee.tag == "NPC" | spawnee.tag == "Enemy") {
 			spawnee.transform.parent = actors.transform;
+			spawnee.GetComponent<unitLogic> ().playerID = playerID;
 		}
 		if (spawnee.tag == "Resource" | spawnee.tag == "ResourceG") {
 			spawnee.transform.parent = resources.transform;
