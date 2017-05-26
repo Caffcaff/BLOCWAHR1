@@ -143,7 +143,7 @@ public class inputManager : MonoBehaviour {
 			if (_box_end_pos != Vector2.zero && _box_start_pos != Vector2.zero) {
 				delta = Mathf.Abs(_box_end_pos.y - _box_start_pos.y);
 				if (delta > dragSenstivity) {
-					eventManager.ClearSelect (unused);
+					eventManager.ClearSelect (unused, playerID);
 					eventManager.GroupSelect(_box_start_pos,_box_end_pos,unused,unused2);
 					_box_end_pos = _box_start_pos = Vector2.zero;
 				}
@@ -156,9 +156,11 @@ public class inputManager : MonoBehaviour {
 		//Mouse Button Right (Move, Attack, Mine)
 		if (Input.GetButtonDown ("Fire1") == true && GUIActive ==false) {
 			Debug.Log ("Pressed right click.");
-			RaycastHit hit; 
+			RaycastHit hit;
+			var layerMask = ~(1 << 11);
+
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
-			if (Physics.Raycast (ray, out hit, 2000.0f)) {
+			if (Physics.Raycast (ray, out hit, 2000.0f, layerMask)) {
 				if (hit.collider.tag != null) {
 					if (hit.collider.tag == "Enemy" || hit.collider.tag == "Friendly" || hit.collider.tag == "NPC" || hit.collider.tag == "Structure" || hit.collider.tag == "betaStructure" || hit.collider.tag == "Resource" || hit.collider.tag == "ResourceG") {
 						eventManager.AttackClick (hit.point, hit.collider.gameObject, playerID);
@@ -181,8 +183,9 @@ public class inputManager : MonoBehaviour {
 		if (Input.GetButtonDown ("Fire2") == true && GUIActive ==false) {
 			Debug.Log ("Pressed middle click.");
 			RaycastHit hit; 
+			var layerMask = ~(1 << 11);
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
-			if (Physics.Raycast (ray, out hit, 1000.0f)) {
+			if (Physics.Raycast (ray, out hit, 1000.0f, layerMask)) {
 				if (hit.collider.tag != null) {
 					if (hit.collider.tag == "Enemy" || hit.collider.tag == "NPC" || hit.collider.tag == "Friendly") {
 						eventManager.FollowClick (hit.point, hit.collider.gameObject, playerID);
@@ -196,26 +199,27 @@ public class inputManager : MonoBehaviour {
 	{
 		Debug.Log ("Pressed left click.");
 		RaycastHit hit; 
+		var layerMask = ~(1 << 11);
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
-		if (Physics.Raycast (ray, out hit, 1000.0f)) {
+		if (Physics.Raycast (ray, out hit, 1000.0f, layerMask)) {
 			if (hit.collider.tag != null) {
-				eventManager.ClearSelect (hit.collider.gameObject);
+				eventManager.ClearSelect (hit.collider.gameObject, playerID);
 				if (hit.collider.tag == "Friendly" | hit.collider.tag == "Structure") {
 					if (hit.collider.tag == "Friendly") {
-						eventManager.UnitSelect (hit.collider.gameObject);
+						eventManager.UnitSelect (hit.collider.gameObject, playerID);
 						Debug.Log ("unit clicked");
 					}
 					if (hit.collider.tag == "Structure") {
 						GameObject clickedStruct = hit.collider.gameObject;
 
 						if (clickedStruct.GetComponent<buildLogic> ().playerID == playerID) {
-							eventManager.StructureSelect (hit.collider.gameObject);
+							eventManager.StructureSelect (hit.collider.gameObject, playerID);
 							Debug.Log ("Structure clicked");
 						}
 					}
 				} else {
 					Debug.Log ("Bebop");
-					eventManager.ClearSelect (hit.collider.gameObject);
+					eventManager.ClearSelect (hit.collider.gameObject, playerID);
 				}
 			}
 		}
@@ -333,7 +337,7 @@ public class inputManager : MonoBehaviour {
 						tempPoint.y = Terrain.activeTerrain.SampleHeight (hit.point);
 						patrolMem.Add (tempPoint);
 						eventManager.ParticleEvent (transform.position, tempPoint, 3);
-						eventManager.ServePatrol (patrolMem [0], patrolMem [1]);
+						eventManager.ServePatrol (patrolMem [0], patrolMem [1], playerID);
 						Debug.Log ("Set Point B");
 						pCursor.SetActive (false);
 						eventManager.ParticleEvent (hit.point, hit.point, 19);
@@ -366,15 +370,19 @@ public class inputManager : MonoBehaviour {
 		}
 	}
 
-	void patrolSwitch(Vector3 pointA, Vector3 PointB){
-		patrolActive = true;
-		buildActive = false;
+	void patrolSwitch(Vector3 pointA, Vector3 PointB, int ID){
 
-		if (pCursor == null) {
-			pCursor = Instantiate (patrolCursor, transform.position, transform.rotation);
+		if (ID == playerID) {
+
+			patrolActive = true;
+			buildActive = false;
+
+			if (pCursor == null) {
+				pCursor = Instantiate (patrolCursor, transform.position, transform.rotation);
+			}
+			pCursor.SetActive (true);
+			patrolMem.Clear ();
+			_state = State.Patrol;
 		}
-		pCursor.SetActive (true);
-		patrolMem.Clear();
-		_state = State.Patrol;
 	}
 }

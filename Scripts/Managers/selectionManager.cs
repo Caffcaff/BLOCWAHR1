@@ -5,12 +5,15 @@ using UnityEngine;
 public class selectionManager : MonoBehaviour {
 
 	public int playerID = 1;
+	public bool debugActive = true;
 
 	public List<GameObject> unitsInPlay = new List<GameObject>();
 	public List<GameObject> structsInPlay = new List<GameObject>();
 	public List<GameObject> betaStructs = new List<GameObject>();
 	public List<GameObject> currentSelection = new List<GameObject>();
 	public List<GameObject> selectGroup = new List<GameObject>();
+
+	public GameObject gManager;
 
 	void OnEnable(){
 		eventManager.onUnitCreate += reCacheUnits;
@@ -36,6 +39,8 @@ public class selectionManager : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 
+		gManager = GameObject.Find("gameManager");
+
 		GameObject temp = GameObject.FindGameObjectWithTag ("playerSeed");
 		playerID = temp.GetComponent<playerCommand>().playerID;
 
@@ -48,29 +53,31 @@ public class selectionManager : MonoBehaviour {
 				unitsInPlay.Add (unit);
 			}
 		}
-
-		reCacheStructs (transform.position, 1);
-		reCacheStructs (transform.position, 2);
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		
+
 	}
 
-	void unitSelection (GameObject selected) {
-		currentSelection.Clear();
-		unitLogic logic = selected.GetComponent<unitLogic>();
+	void unitSelection (GameObject selected, int ID) {
+		currentSelection.Clear ();
+		unitLogic logic = selected.GetComponent<unitLogic> ();
+
 		if (logic.playerID == playerID) {
-			currentSelection.Add(selected);
+			currentSelection.Add (selected);
 		}
-		eventManager.SelectEvent (this.gameObject);
-		Debug.Log ("Units Selected");
+		eventManager.SelectEvent (this.gameObject, playerID);
+		if (debugActive) {
+			Debug.Log ("Units Selected");
+		}
 	}
 
 	void groupSelection (Vector2 RectStart, Vector2 RectEnd, GameObject selected, int Type) {
 		currentSelection.Clear();
-		Debug.Log ("GROUP SELECT CALLED");
+		if (debugActive) {
+			Debug.Log ("GROUP SELECT CALLED");
+		}
 
 		Rect aimRect = new Rect(Mathf.Min(RectEnd.x, RectStart.x), Mathf.Min(RectEnd.y, RectStart.y), Mathf.Abs(RectEnd.x - RectStart.x), Mathf.Abs(RectEnd.y - RectStart.y));
 
@@ -87,13 +94,17 @@ public class selectionManager : MonoBehaviour {
 			}
 		
 		}
-		Debug.Log ("Units Selected");
-		eventManager.SelectEvent (this.gameObject);
+		if (debugActive) {
+			Debug.Log ("Units Selected");
+		}
+		setUnitSelects ();
 	}
 
 	void typeSelection (string type) {
 		currentSelection.Clear();
-		Debug.Log ("Type SELECT CALLED");
+		if (debugActive) {
+			Debug.Log ("Type SELECT CALLED");
+		}
 
 		Rect screenRect = new 
 			Rect(0,0, Screen.width, Screen.height);
@@ -106,75 +117,63 @@ public class selectionManager : MonoBehaviour {
 				currentSelection.Add(Unit);
 			}
 		}
-		Debug.Log ("Units Selected");
-		eventManager.SelectEvent (this.gameObject);
+		setUnitSelects ();
+		if(debugActive)
+			Debug.Log ("Units Selected");
 	}
 
-	void clearSelection (GameObject unused){
+	void clearSelection (GameObject unused, int ID){
 		currentSelection.Clear();
 		selectGroup.Clear();
-		Debug.Log ("Deselect");
-		eventManager.SelectEvent (this.gameObject);
+		eventManager.SelectEvent (this.gameObject, playerID);
+		if(debugActive)
+			Debug.Log ("Deselect");
 	}
 
 	void reCacheUnits (GameObject unit, bool state) {
-		unitsInPlay.Clear();
 
-		List<GameObject> tempList = new List <GameObject> ();
-		tempList.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
+		if (gManager != null) {
 
-		foreach(GameObject Unit in tempList){
-			unitLogic ai = Unit.GetComponent<unitLogic> ();
-			if (ai.playerID == playerID) {
-				unitsInPlay.Add (Unit);
+			if (gManager.GetComponent<unitIndex> ().Init) {
+
+				unitsInPlay = gManager.GetComponent<unitIndex> ().units [playerID];
+
+				if (debugActive) {
+					Debug.Log ("Units List Updated");
+				}
 			}
 		}
-		Debug.Log ("Units List Updated");
 	}
+
 	void reCacheStructs (Vector3 position, int type)
 	{
-		if (type == 2) {
-			structsInPlay.Clear ();
 
-			List<GameObject> tempList = new List<GameObject> ();
-			tempList.AddRange(GameObject.FindGameObjectsWithTag ("Structure"));
+		if (gManager != null) {
 
-			if (tempList.Count != 0) {
+			if (gManager.GetComponent<unitIndex> ().Init) {
 
-				foreach (GameObject unit in tempList) {
+				structsInPlay = new List<GameObject> ();
+				structsInPlay = gManager.GetComponent<unitIndex> ().structs [playerID];
 
-					if (unit.GetComponent<buildLogic> () != null) {
+				betaStructs = new List<GameObject> ();
+				betaStructs = gManager.GetComponent<unitIndex> ().betaStructs [playerID];
 
-						if (unit.GetComponent<buildLogic> ().playerID == playerID) {
-							structsInPlay.Add (unit);	
-						}
-					}
-				}
+			
+				Debug.Log ("BetaStructs List Updated");
 			}
-
-			Debug.Log ("Structs List Updated");
 		}
+	}
 
-		if (type == 1) {
-			betaStructs.Clear ();
+	void setUnitSelects (){
 
-			List<GameObject> tempList = new List<GameObject> ();
-			tempList.AddRange(GameObject.FindGameObjectsWithTag ("betaStructure"));
+		int i = 1;
 
-			if (tempList.Count != 0) {
-
-				foreach (GameObject unit in tempList) {
-
-					if (unit.GetComponent<buildLogic> () != null) {
-
-						if (unit.GetComponent<buildLogic> ().playerID == playerID) {
-							betaStructs.Add (unit);	
-						}
-					}
-				}
-			}
-
-			Debug.Log ("BetaStructs List Updated");
+		foreach (GameObject unit in currentSelection) {
+			eventManager.SelectEvent (unit, playerID);
+			i++;
+		}
+		if (debugActive) {
+			Debug.Log ("Player " + playerID + " | Selected " + i + " units.");
 		}
 	}
 }

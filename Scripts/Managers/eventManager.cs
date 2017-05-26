@@ -11,7 +11,7 @@ public class eventManager : MonoBehaviour {
 		public static inputDelegate onAttackClick;
 		public static inputDelegate onGroundAttackClick;
 
-	public delegate void navArrayDelegate(Vector3 point, GameObject actor, bool leader);
+	public delegate void navArrayDelegate(Vector3 point, GameObject actor, bool leader, int ID);
 
 		public static navArrayDelegate onNavArray;
 		public static navArrayDelegate onAttackArray;
@@ -35,7 +35,7 @@ public class eventManager : MonoBehaviour {
 
 		public static typeSelectionDelegate onTypeSelect;
 
-	public delegate void selectionDelegate(GameObject selectedUnit);
+	public delegate void selectionDelegate(GameObject selectedUnit, int ID);
 
 		public static selectionDelegate onClearSelect;
 		public static selectionDelegate onUnitSelect;
@@ -90,15 +90,15 @@ public class eventManager : MonoBehaviour {
 
 		public static spawnEventDelegate onUnitSpawn;
 
-	public delegate void patrolEventDelegate(Vector3 origin, Vector3 destination);
+	public delegate void patrolEventDelegate(Vector3 origin, Vector3 destination, int ID);
 
 		public static patrolEventDelegate onPatrolSet;
 
-	public delegate void vantageDelegate(GameObject actor, GameObject target, float range);
+	public delegate void vantageDelegate(GameObject actor, GameObject target, float range, int ID);
 
 		public static vantageDelegate onRequestPosition;
 
-	public delegate void navRequestDelegate(GameObject actor, Vector3 target, float range);
+	public delegate void navRequestDelegate(GameObject actor, Vector3 target, float range, int ID);
 
 	public static navRequestDelegate onRequestNav;
 
@@ -110,7 +110,7 @@ public class eventManager : MonoBehaviour {
 
 	public static wallDelegate onConfirmWall; 
 
-	public delegate void patrolDelegate(Vector3 pointA, Vector3 pointB);
+	public delegate void patrolDelegate(Vector3 pointA, Vector3 pointB, int ID);
 
 	public static patrolDelegate onPatrolEnter; 
 	public static patrolDelegate onServePatrol;
@@ -119,6 +119,7 @@ public class eventManager : MonoBehaviour {
 
 	public static cacheEventDelegate onMapAI;
 	public static cacheEventDelegate onMarketCache;
+	public static cacheEventDelegate onListInit;
 
 	public delegate void orderEventDelegate (Order order, GameObject[] units, int statusCode);
 
@@ -131,40 +132,45 @@ public class eventManager : MonoBehaviour {
 	public static AiFactoryDelegate onAIFactoryOrder;
 	public static AiFactoryDelegate onServeFactoryOrder;
 
+	public delegate void encounterDelegate (navMemory scan, int playerID);
+
+	public static encounterDelegate onUnitEncounter;
+	public static encounterDelegate onStructEncounter;
+
 
 	// Input Event Methods
 
-	public static void NavClick (Vector3 point, GameObject actor, int playerID) {
+	public static void NavClick (Vector3 point, GameObject actor, int ID) {
 		if (onNavClick != null)
-			onNavClick (point, actor, playerID);
+			onNavClick (point, actor, ID);
 	}
-	public static void NavArray (Vector3 point, GameObject actor, bool leader) {
+	public static void NavArray (Vector3 point, GameObject actor, bool leader, int ID) {
 		if (onNavArray != null)
-			onNavArray (point, actor, leader);
+			onNavArray (point, actor, leader, ID);
 	}
-	public static void SetFormation (Vector3 point, GameObject actor, bool leader) {
+	public static void SetFormation (Vector3 point, GameObject actor, bool leader, int ID) {
 		if (onSetFormation != null)
-			onSetFormation (point, actor, leader);
+			onSetFormation (point, actor, leader, ID);
 	}
-	public static void AttackArray (Vector3 point, GameObject actor, bool leader) {
+	public static void AttackArray (Vector3 point, GameObject actor, bool leader, int ID) {
 		if (onAttackArray != null)
-			onAttackArray (point, actor, leader);
+			onAttackArray (point, actor, leader, ID);
 	}
 	public static void FlockArray (GameObject actor, GameObject slot) {
 		if (onFlockArray != null)
 			onFlockArray (actor, slot);
 	}
-	public static void FollowClick (Vector3 point, GameObject actor, int playerID) {
+	public static void FollowClick (Vector3 point, GameObject actor, int ID) {
 		if (onFollowClick != null)
-			onFollowClick (point, actor, playerID);
+			onFollowClick (point, actor, ID);
 	}
-	public static void AttackClick (Vector3 point, GameObject actor, int playerID) {
+	public static void AttackClick (Vector3 point, GameObject actor, int ID) {
 		if (onAttackClick != null)
-			onAttackClick (point, actor, playerID);
+			onAttackClick (point, actor, ID);
 	}
-	public static void GroundAttackClick (Vector3 point, GameObject actor, int playerID) {
+	public static void GroundAttackClick (Vector3 point, GameObject actor, int ID) {
 		if (onGroundAttackClick != null)
-			onGroundAttackClick (point, actor, playerID);
+			onGroundAttackClick (point, actor, ID);
 	}
 	public static void ButtonClick (GameObject button) {
 		if (onButtonClick != null)
@@ -181,21 +187,21 @@ public class eventManager : MonoBehaviour {
 
 	// Selection Event Methods2
 
-	public static void UnitSelect (GameObject selectedUnit) {
+	public static void UnitSelect (GameObject selectedUnit, int ID) {
 		if (onUnitSelect != null)
-			onUnitSelect (selectedUnit);
+			onUnitSelect (selectedUnit, ID);
 	}
-	public static void StructureSelect (GameObject selectedUnit) {
+	public static void StructureSelect (GameObject selectedUnit, int ID) {
 		if (onStructureSelect != null)
-			onStructureSelect (selectedUnit);
+			onStructureSelect (selectedUnit, ID);
 	}
-	public static void FactorySelect (GameObject selectedUnit) {
+	public static void FactorySelect (GameObject selectedUnit, int ID) {
 		if (onFactorySelect != null)
-			onFactorySelect (selectedUnit);
+			onFactorySelect (selectedUnit, ID);
 	}
-	public static void SelectEvent (GameObject selectedUnit) {
+	public static void SelectEvent (GameObject selectedUnit, int ID) {
 		if (onSelectEvent != null)
-			onSelectEvent (selectedUnit);
+			onSelectEvent (selectedUnit, ID);
 	}
 	public static void GroupSelect (Vector2 Rectx, Vector2 Recty, GameObject selectedUnits, int Type) {
 		if (onGroupSelect != null)
@@ -205,9 +211,9 @@ public class eventManager : MonoBehaviour {
 		if (onTypeSelect != null)
 			onTypeSelect (type);
 	}
-	public static void ClearSelect (GameObject selectedUnit) {
+	public static void ClearSelect (GameObject selectedUnit, int ID) {
 		if (onClearSelect != null)
-			onClearSelect (selectedUnit);
+			onClearSelect (selectedUnit, ID);
 	}
 
 	// HitPoint Event Methods
@@ -306,19 +312,19 @@ public class eventManager : MonoBehaviour {
 			onUnitSpawn (prefab, location, playerID);
 	}
 	// Patrol Events
-	public static void PatrolSet (Vector3 origin, Vector3 destination) {
+	public static void PatrolSet (Vector3 origin, Vector3 destination, int ID) {
 		if (onPatrolSet != null)
-			onPatrolSet (origin, destination);
+			onPatrolSet (origin, destination, ID);
 	}
 
 	// Position Reqeust Events
-	public static void RequestPosition (GameObject actor, GameObject target, float range) {
+	public static void RequestPosition (GameObject actor, GameObject target, float range, int ID) {
 		if (onRequestPosition != null)
-			onRequestPosition (actor, target, range);
+			onRequestPosition (actor, target, range, ID);
 	}
-	public static void RequestNav (GameObject actor, Vector3 target, float range) {
+	public static void RequestNav (GameObject actor, Vector3 target, float range, int ID) {
 		if (onRequestNav != null)
-			onRequestNav (actor, target, range);
+			onRequestNav (actor, target, range, ID);
 	}
 	public static void ServePosition (GameObject actor, Vector3 position) {
 		if (onServePosition != null)
@@ -328,13 +334,13 @@ public class eventManager : MonoBehaviour {
 		if (onConfirmWall != null)
 			onConfirmWall (wall);
 	}
-	public static void PatrolEnter (Vector3 pointA, Vector3 pointB) {
+	public static void PatrolEnter (Vector3 pointA, Vector3 pointB, int ID) {
 		if (onPatrolEnter != null)
-			onPatrolEnter (pointA, pointB);
+			onPatrolEnter (pointA, pointB, ID);
 	}
-	public static void ServePatrol (Vector3 pointA, Vector3 pointB) {
+	public static void ServePatrol (Vector3 pointA, Vector3 pointB, int ID) {
 		if (onServePatrol != null)
-			onServePatrol (pointA, pointB);
+			onServePatrol (pointA, pointB, ID);
 	}
 	public static void MapAI (int ID) {
 		if (onMapAI != null)
@@ -344,6 +350,12 @@ public class eventManager : MonoBehaviour {
 		if (onMarketCache != null)
 			onMarketCache (ID);
 	}
+	public static void ListInit (int ID) {
+		if (onListInit != null)
+			onListInit (ID);
+	}
+
+
 	public static void InitOrder (Order order, GameObject[] units, int statusCode) {
 		if (onInitOrder != null)
 			onInitOrder (order, units, statusCode);
@@ -367,5 +379,15 @@ public class eventManager : MonoBehaviour {
 	public static void ServeFactoryOrder (FactoryOrder AIFactory) {
 		if (onServeFactoryOrder != null)
 			onServeFactoryOrder (AIFactory);
+	}
+
+	public static void UnitEncounter (navMemory scan, int playerID) {
+		if (onUnitEncounter != null)
+			onUnitEncounter (scan, playerID);
+	}
+
+	public static void StructEncounter (navMemory scan, int playerID) {
+		if (onStructEncounter != null)
+			onStructEncounter (scan, playerID);
 	}
 }

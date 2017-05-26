@@ -255,7 +255,9 @@ public class AIMap : MonoBehaviour {
 					Instantiate (pPuck, locales [i].focal, transform.rotation);
 				}
 				locales.RemoveAt(i);
-				Debug.Log ("Culled" + i + shout);
+				if (debugActive) {
+					Debug.Log ("Culled" + i + shout);
+				}
 			}
 			i--;
 		}

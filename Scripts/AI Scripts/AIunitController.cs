@@ -6,12 +6,13 @@ public class AIunitController : MonoBehaviour {
 
 
 	public int playerID;
+	public bool debugActive = true;
 	public AICommand command;
+
+	public bool isLive = false;
 
 	public float interval = 1;
 	private float c_interval;
-
-	public List<GameObject> ownedUnits = new List<GameObject>();
 
 	public List<GameObject> miners = new List<GameObject>();
 	public List<GameObject> mGuns = new List<GameObject>();
@@ -24,6 +25,8 @@ public class AIunitController : MonoBehaviour {
 	public List<GameObject> idle_utilities = new List<GameObject>();
 
 	public List<Order> orderQueue = new List<Order>();
+
+	public GameObject[] currSelect;
 
 
 	[Header("Recon Loadout")]
@@ -54,37 +57,42 @@ public class AIunitController : MonoBehaviour {
 	public int p_Gunners = 4;
 	public int p_Missiles = 2;
 	public int p_Utilities = 0;
-		
 
+	public GameObject gManager;
 
 	void OnEnable(){
 		eventManager.onInitOrder += onCommand;
 		eventManager.onUnitSpawn += reCacheCheck;
+		eventManager.onListInit += onInit;
 	}
 
 	void OnDisable(){
 
 		eventManager.onInitOrder -= onCommand;
 		eventManager.onUnitSpawn -= reCacheCheck;
+		eventManager.onListInit -= onInit;
 	}
 
 	// Use this for initialization
 	void Start () {
+
+		gManager = GameObject.Find ("gameManager");
 		c_interval = interval;
 		command = GetComponent<AICommand> ();
 		playerID = command.playerID;
-		reCacheUnits ();
-		setupLoadouts ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
-		c_interval -= Time.deltaTime;
+		if (isLive) {
 
-		if (c_interval <= 0) {
-			c_interval = interval;
-			actionList ();
+			c_interval -= Time.deltaTime;
+
+			if (c_interval <= 0) {
+				c_interval = interval;
+				actionList ();
+			}
 		}
 	}
 	public void reCacheCheck(GameObject unused, Vector3 Unused, int ID){
@@ -94,8 +102,7 @@ public class AIunitController : MonoBehaviour {
 	}
 
 	public void reCacheUnits (){
-		
-		ownedUnits.Clear ();
+
 		miners.Clear ();
 		mGuns.Clear ();
 		missiles.Clear ();
@@ -106,18 +113,8 @@ public class AIunitController : MonoBehaviour {
 		idle_missiles.Clear ();
 		idle_utilities.Clear ();
 
-		List<GameObject> tempList = new List<GameObject> ();
-		tempList.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
 
-
-		foreach (GameObject unit in tempList) {
-			unitLogic ai = unit.GetComponent<unitLogic> ();
-			if (ai.playerID == playerID) {
-				ownedUnits.Add (unit);
-			}
-		}
-
-		foreach (GameObject unit in ownedUnits) {
+		foreach (GameObject unit in gManager.GetComponent<unitIndex>().units[playerID]) {
 
 			unitLogic ai = unit.GetComponent<unitLogic> ();
 
@@ -177,6 +174,9 @@ public class AIunitController : MonoBehaviour {
 			if (currOrder._type == Order.Type.Patrol) {
 				loadout = patrolLoadout;
 			}
+			if (currOrder._type == Order.Type.Attack) {
+				loadout = new missionLoadout(0,3,3,0,1);
+			}
 
 			//Check Mgun Amount
 
@@ -188,6 +188,7 @@ public class AIunitController : MonoBehaviour {
 					i++;
 				}
 			}
+
 			else{
 				Debug.Log ("Not enough MGuns");
 				factory_mgun = (loadout.mGun - idle_mGuns.Count);
@@ -230,7 +231,6 @@ public class AIunitController : MonoBehaviour {
 			}
 			else{ 
 				factory_utility = (loadout.utilities - idle_utilities.Count);	
-			
 				Debug.Log ("added units to factory order");
 			}
 				
@@ -239,7 +239,12 @@ public class AIunitController : MonoBehaviour {
 			if ((factory_mgun + factory_miner + factory_missile + factory_utility) < 1 ) {
 
 				GameObject[] units = missionUnits.ToArray ();
+				foreach (GameObject unit in units) {
+					eventManager.SelectEvent (unit, playerID);
+				}
+				currSelect = units;
 				eventManager.ServeOrder(currOrder, units, 0);
+				AItoInput (currOrder);
 				orderQueue.RemoveAt (0);
 				Debug.Log ("ORDER: "+ currOrder._type + " order served to " + missionUnits.Count + " units.");
 				reCacheUnits ();
@@ -302,6 +307,9 @@ public class AIunitController : MonoBehaviour {
 			if (order._type == Order.Type.Mine) {
 				// Type Specicific Settings
 				order.navTarget = command.Outposts [order.outpostID].focal;
+
+				order.unitTarget = nearestResource (order.navTarget);
+
 				order.patrolA = command.Outposts [order.outpostID].buildSlots [11].point;
 				order.patrolB = command.Outposts [order.outpostID].buildSlots [12].point;
 
@@ -342,5 +350,84 @@ public class AIunitController : MonoBehaviour {
 		buildingLoadout.utilities = b_Utilities;
 		buildingLoadout.techLevel = command.techLevel;
 
+	}
+
+	void onInit(int ID){
+
+		reCacheUnits ();
+		setupLoadouts ();
+
+		isLive = true;
+
+	}
+
+	void AItoInput(Order currOrder){
+
+		if (currOrder._type == Order.Type.Recon || currOrder._type == Order.Type.Move) {
+
+
+			eventManager.NavClick (currOrder.navTarget, null, playerID);
+
+			if (debugActive) {
+				Debug.Log ("AI Nav Click - Player: " + playerID);
+			}
+	
+			return;
+		}
+
+		if (currOrder._type == Order.Type.Attack || currOrder._type == Order.Type.Build || currOrder._type == Order.Type.Mine) {
+		
+			eventManager.AttackClick (currOrder.navTarget, currOrder.unitTarget, playerID);
+
+			if (debugActive) {
+				Debug.Log ("AI Attack Click - Player: " + playerID);
+			}
+
+			return;
+		}
+
+
+		if (currOrder._type == Order.Type.Patrol) {
+
+
+			eventManager.PatrolSet (currOrder.patrolA, currOrder.patrolB, playerID);
+
+			if (debugActive) {
+				Debug.Log ("AI Patrol Click - Player: " + playerID);
+			}
+
+			return;
+		}
+
+
+
+	}
+
+	GameObject nearestResource (Vector3 point)
+	{
+		float distance = Mathf.Infinity;
+		GameObject closest = new GameObject ();
+		List<GameObject> resos = gManager.GetComponent<unitIndex> ().resources;
+
+		if (resos.Count > 0) {
+
+			foreach (GameObject resource in resos) {
+				if(resource != null){
+				float curr = Vector3.Distance (resource.transform.position, point);
+
+				if (curr < distance) {
+					closest = resource;
+					distance = curr;
+				}
+			}
+		}
+
+			return closest;
+		} else {
+		}
+		if(debugActive){
+			Debug.Log ("No resource or no List Init");
+				}
+		return null;
 	}
 }

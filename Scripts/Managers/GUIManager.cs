@@ -197,7 +197,7 @@ public class GUIManager : MonoBehaviour {
 		}
 		if (button.name == "Patrol") {
 			Debug.Log ("Patrol clicked");
-			eventManager.onPatrolEnter (transform.position, transform.position);
+			eventManager.onPatrolEnter (transform.position, transform.position, playerID);
 		}
 
 		//Build GUI Buttons
@@ -417,7 +417,7 @@ public class GUIManager : MonoBehaviour {
 			buildCancel.SetActive (false);
 		}
 	}
-	void initFactoryUI(GameObject factory){
+	void initFactoryUI(GameObject factory, int ID){
 		
 		fManager = factory.GetComponent<factoryManager> ();
 		factoryGUI.SetActive (true);

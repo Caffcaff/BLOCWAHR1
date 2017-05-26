@@ -99,11 +99,11 @@ public class particleManager : MonoBehaviour {
 	}
 
 	void patrolLine(Vector3 pointA, Vector3 PointB){
-		pLineRender.numPositions = 2;
+		pLineRender.positionCount = 2;
 		pLineRender.SetPosition (0, pointA);
 		pLineRender.SetPosition (1, PointB);
 	}
 	void pLineClear(){
-		pLineRender.numPositions = 0;
+		pLineRender.positionCount = 0;
 	}
 }

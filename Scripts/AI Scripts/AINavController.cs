@@ -73,7 +73,7 @@ public class AINavController : MonoBehaviour {
 		foreach (GameObject unit in units) {
 			if (i > 0 && r < columns) {
 				eventManager.ParticleEvent (hit, hit, 3);
-				eventManager.NavArray (hit, unit, false);
+				eventManager.NavArray (hit, unit, false, playerID);
 				Vector3 shift = new Vector3 (hSpacing, 0, 0);
 				hit += shift;
 				r++;
@@ -86,7 +86,7 @@ public class AINavController : MonoBehaviour {
 
 			if (i == 0) {
 				eventManager.ParticleEvent (hit, hit, 3);
-				eventManager.NavArray (hit, unit, true);
+				eventManager.NavArray (hit, unit, true, playerID);
 
 				if ((columns % 2) > 0) {
 					offset = (((float)columns - 1) / 2);
@@ -130,11 +130,11 @@ public class AINavController : MonoBehaviour {
 			//			Quaternion rot = Quaternion.FromToRotation(Vector3.forward, center-pos);
 			Vector3 hit = footPrint.ClosestPoint (pos);
 			if (i == 0) {
-				eventManager.AttackArray (hit, unit, true);
+				eventManager.AttackArray (hit, unit, true, playerID);
 				i++;
 			}
 			if (i != 0) {
-				eventManager.AttackArray (hit, unit, false);
+				eventManager.AttackArray (hit, unit, false, playerID);
 			}
 
 			eventManager.ParticleEvent (hit, hit, 3);
@@ -185,9 +185,10 @@ public class AINavController : MonoBehaviour {
 		Vector3 tempRand = new Vector3 (Random.Range (-range,range), 0, Random.Range (-range,range));
 		i++;
 		Vector3 tryPos = target.transform.position + tempRand;
-		Vector3 rayPos = new Vector3 (tryPos.x, 200, tryPos.z);
+		Vector3 rayPos = new Vector3 (tryPos.x, 1000, tryPos.z);
 		RaycastHit hit;
-		if (Physics.Raycast (rayPos, -Vector3.up, out hit, 250)) {
+		var layerMask = ~(1 << 11);
+		if (Physics.Raycast (rayPos, -Vector3.up, out hit, 1500, layerMask)) {
 			Instantiate (navHalo, hit.point, transform.rotation);
 			if (hit.collider.tag == "Floor" | hit.collider.tag == "buildPlane") {
 				eventManager.ServePosition(actor, tryPos);
@@ -202,7 +203,6 @@ public class AINavController : MonoBehaviour {
 					eventManager.ServePosition(actor, target.transform.position);
 				}
 			}
-
 		}
 	}
 	void navPosition(GameObject actor, Vector3 target, float range){
@@ -211,9 +211,10 @@ public class AINavController : MonoBehaviour {
 		Vector3 tempRand = new Vector3 (Random.Range (-range,range), 0, Random.Range (-range,range));
 		i++;
 		Vector3 tryPos = target + tempRand;
-		Vector3 rayPos = new Vector3 (tryPos.x, 200, tryPos.z);
+		Vector3 rayPos = new Vector3 (tryPos.x, 1000, tryPos.z);
 		RaycastHit hit;
-		if (Physics.Raycast (rayPos, -Vector3.up, out hit, 250)) {
+		var layerMask = ~(1 << 11);
+		if (Physics.Raycast (rayPos, -Vector3.up, out hit, 1500,layerMask)) {
 			Instantiate (navHalo, hit.point, transform.rotation);
 			if (hit.collider.tag == "Floor" | hit.collider.tag == "buildPlane") {
 				eventManager.ServePosition(actor, tryPos);
@@ -246,16 +247,7 @@ public class AINavController : MonoBehaviour {
 
 			}
 
-
 		}
-
-
-
-
-
-
-
-
-
+			
 	}
 }

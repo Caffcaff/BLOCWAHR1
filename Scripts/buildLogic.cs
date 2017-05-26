@@ -27,6 +27,8 @@ public class buildLogic : MonoBehaviour {
 		Factory,
 		Upgradeable,
 		Refinery,
+		Silo,
+		Sentry,
 		Research
 	}
 
@@ -69,7 +71,7 @@ public class buildLogic : MonoBehaviour {
 	void Update () {
 		
 	}
-	void onSelect (GameObject selected) {
+	void onSelect (GameObject selected, int ID) {
 		if (selected == this.gameObject) {
 			Debug.Log ("SMSO");
 			selectState = true;
@@ -82,12 +84,12 @@ public class buildLogic : MonoBehaviour {
 				activeIcon.SetActive (true);
 			}
 			if(_type == Type.Factory){
-			eventManager.FactorySelect (this.gameObject);
+				eventManager.FactorySelect (this.gameObject, playerID);
 			}
 			// many other ifs
 	}
 	}
-	void clearSelect (GameObject selected) {
+	void clearSelect (GameObject selected, int ID) {
 		if (selected == true) {
 			selectState = false;
 			if (activeIcon != null) {

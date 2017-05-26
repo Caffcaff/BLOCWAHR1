@@ -7,6 +7,7 @@ public class AICommand : MonoBehaviour {
 	[Header("General Settings")]
 	public int playerID = 2;
 	public int techLevel = 1;
+	public bool debugActive = false;
 	public int outpostIndex;
 	public enum State {
 		Initialise,
@@ -21,7 +22,7 @@ public class AICommand : MonoBehaviour {
 	private float pInterval;
 	public float garrisonInterval = 3;
 	private float gInterval;
-	public float mineInterval = 60;
+	public float mineInterval = 120;
 	private float m_Interval;
 	public float cleanupInterval = 100;
 	private float cu_Interval;
@@ -35,17 +36,27 @@ public class AICommand : MonoBehaviour {
 	public marketManager mManager;
 	public buildManager bManager;
 
+	bool mapInit = false;
+	bool listInit = false;
+
 	public bool initRun = true;
 
 	void OnEnable(){
 		eventManager.onMapAI += onMap;
+		eventManager.onListInit += onList;
 		eventManager.onReturnOrder += onReturnOrder;
+		eventManager.onUnitEncounter += onEncounter;
+		eventManager.onStructEncounter += onEncounter;
+
 	}
 
 	void OnDisable(){
 
 		eventManager.onMapAI -= onMap;
+		eventManager.onListInit -= onList;
 		eventManager.onReturnOrder -= onReturnOrder;
+		eventManager.onUnitEncounter -= onEncounter;
+		eventManager.onStructEncounter -= onEncounter;
 
 	}
 
@@ -95,8 +106,10 @@ public class AICommand : MonoBehaviour {
 
 	void idle (){
 
-
-		
+		if (mapInit == true && listInit == true) {
+			_state = State.inGame;
+		}
+	
 	}
 
 	void inGame (){
@@ -185,7 +198,7 @@ public class AICommand : MonoBehaviour {
 							}
 							else {
 								if (issueMineOrder == true) {
-									Order mineOrder = new Order (Order.Type.Mine, playerID, i);
+									Order mineOrder = new Order (Order.Type.Mine, playerID, outpost.ID);
 									eventManager.InitOrder (mineOrder, null, 0);
 									issueMineOrder = false;
 								}
@@ -284,7 +297,7 @@ public class AICommand : MonoBehaviour {
 				outpost.structs.Add (outpost.tower4);
 
 			}
-			_state = State.inGame;
+			mapInit = true;
 		}
 	}
 
@@ -365,7 +378,9 @@ public class AICommand : MonoBehaviour {
 
 		} else {
 
-			Debug.Log ("Too Expensive" + " Cost:" + mManager.structs [type].cost + " Money:" + (rManager.resource [playerID] / 2));
+			if (debugActive) {
+				Debug.Log ("Too Expensive" + " Cost:" + mManager.structs [type].cost + " Money:" + (rManager.resource [playerID] / 2));
+			}
 			return null;
 
 		}
@@ -399,4 +414,22 @@ public class AICommand : MonoBehaviour {
 
 
 		}
+
+	void onEncounter(navMemory scan, int ID){
+
+		if (ID == playerID) { 
+
+			Order attack = new Order(Order.Type.Attack, playerID, outpostIndex);
+			attack.navTarget = scan.location;
+
+			eventManager.InitOrder (attack, null, 0);
+		}
+	}
+
+	void onList (int type){
+
+		listInit = true;
+
+	}	
+
 	}
