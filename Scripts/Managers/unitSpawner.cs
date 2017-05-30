@@ -28,7 +28,7 @@ public class unitSpawner : MonoBehaviour {
 		GameObject spawnee = Instantiate (prefab, location, transform.rotation);
 		if (spawnee.tag == "Friendly" | spawnee.tag == "NPC" | spawnee.tag == "Enemy") {
 			spawnee.transform.parent = actors.transform;
-			spawnee.GetComponent<unitLogic> ().playerID = playerID;
+			spawnee.GetComponent<unitAgent> ().playerID = playerID;
 		}
 		if (spawnee.tag == "Resource" | spawnee.tag == "ResourceG") {
 			spawnee.transform.parent = resources.transform;

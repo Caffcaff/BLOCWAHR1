@@ -7,7 +7,7 @@ public class healthText : MonoBehaviour {
 	public string healthAmount;
 	public int managerAmount;
 	private int total = 100;
-	public unitLogic manager;
+	public unitAgent manager;
 	public TextMesh text;
 	public Color mid;
 	public Color low;
@@ -17,7 +17,7 @@ public class healthText : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		manager = GetComponentInParent<unitLogic> ();
+		manager = GetComponentInParent<unitAgent> ();
 		text = GetComponent<TextMesh> ();
 	}
 	

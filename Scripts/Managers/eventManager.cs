@@ -120,12 +120,17 @@ public class eventManager : MonoBehaviour {
 	public static cacheEventDelegate onMapAI;
 	public static cacheEventDelegate onMarketCache;
 	public static cacheEventDelegate onListInit;
+	public static cacheEventDelegate onUnitCache;
 
-	public delegate void orderEventDelegate (Order order, GameObject[] units, int statusCode);
+	public delegate void orderEventDelegate (Order order, GameObject unit, int statusCode, int ID);
 
 	public static orderEventDelegate onInitOrder;
 	public static orderEventDelegate onServeOrder;
 	public static orderEventDelegate onReturnOrder;
+
+	public delegate void orderProcessDelegate (Order order, GameObject[] units);
+
+	public static orderProcessDelegate onProcessOrder;
 
 	public delegate void AiFactoryDelegate (FactoryOrder AIFactory);
 
@@ -354,19 +359,26 @@ public class eventManager : MonoBehaviour {
 		if (onListInit != null)
 			onListInit (ID);
 	}
-
-
-	public static void InitOrder (Order order, GameObject[] units, int statusCode) {
+	public static void UnitCache(int ID) {
+		if (onUnitCache != null)
+			onUnitCache (ID);
+	}
+	public static void InitOrder (Order order, GameObject unit, int statusCode, int ID) {
 		if (onInitOrder != null)
-			onInitOrder (order, units, statusCode);
+			onInitOrder (order, unit, statusCode, ID);
 	}
-	public static void ServeOrder (Order order, GameObject[] units, int statusCode) {
+	public static void ServeOrder (Order order, GameObject unit, int statusCode, int ID) {
 		if (onServeOrder != null)
-			onServeOrder (order, units, statusCode);
+			onServeOrder (order, unit, statusCode, ID);
 	}
-	public static void ReturnOrder (Order order, GameObject[] units, int statusCode) {
+	public static void ReturnOrder (Order order, GameObject unit, int statusCode, int ID) {
 		if (onReturnOrder != null)
-			onReturnOrder (order, units, statusCode);
+			onReturnOrder (order, unit, statusCode, ID);
+	}
+
+	public static void ProcessOrder (Order order, GameObject[] units) {
+		if (onProcessOrder != null)
+			onProcessOrder (order, units);
 	}
 
 	// AI Factory

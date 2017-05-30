@@ -16,24 +16,30 @@ public class selectionManager : MonoBehaviour {
 	public GameObject gManager;
 
 	void OnEnable(){
-		eventManager.onUnitCreate += reCacheUnits;
-		eventManager.onBuildInit += reCacheStructs;
-		eventManager.onUnitDestroy += reCacheUnits;
+
+		eventManager.onUnitCache += reCacheUnits;
 		eventManager.onUnitSelect += unitSelection;
 		eventManager.onGroupSelect += groupSelection;
 		eventManager.onTypeSelect += typeSelection;
 		eventManager.onClearSelect += clearSelection;
 
+		eventManager.onAttackClick += onAttackClick;
+		eventManager.onNavClick += onNavClick;
+		eventManager.onServePatrol += onPatrol;
+
 	}
 
 	void OnDisable(){
-		eventManager.onUnitCreate -= reCacheUnits;
-		eventManager.onBuildInit -= reCacheStructs;
-		eventManager.onUnitDestroy -= reCacheUnits;
+
+		eventManager.onUnitCache -= reCacheUnits;
 		eventManager.onUnitSelect -= unitSelection;
 		eventManager.onGroupSelect -= groupSelection;
 		eventManager.onTypeSelect -= typeSelection;
 		eventManager.onClearSelect -= clearSelection;
+
+		eventManager.onAttackClick += onAttackClick;
+		eventManager.onNavClick += onNavClick;
+		eventManager.onServePatrol += onPatrol;
 
 	}
 	// Use this for initialization
@@ -48,7 +54,7 @@ public class selectionManager : MonoBehaviour {
 		tempList.AddRange(GameObject.FindGameObjectsWithTag("Friendly"));
 
 		foreach(GameObject unit in tempList){
-			unitLogic ai = unit.GetComponent<unitLogic> ();
+			unitAgent ai = unit.GetComponent<unitAgent> ();
 			if (ai.playerID == playerID) {
 				unitsInPlay.Add (unit);
 			}
@@ -62,7 +68,7 @@ public class selectionManager : MonoBehaviour {
 
 	void unitSelection (GameObject selected, int ID) {
 		currentSelection.Clear ();
-		unitLogic logic = selected.GetComponent<unitLogic> ();
+		unitAgent logic = selected.GetComponent<unitAgent> ();
 
 		if (logic.playerID == playerID) {
 			currentSelection.Add (selected);
@@ -83,13 +89,15 @@ public class selectionManager : MonoBehaviour {
 
 
 		foreach (GameObject Unit in unitsInPlay) {
-			Vector3 pos = Camera.main.WorldToScreenPoint(Unit.transform.position);
-			//pos.y = Screen.height - pos.y;
+			if (Unit != null) {
+				Vector3 pos = Camera.main.WorldToScreenPoint (Unit.transform.position);
+				//pos.y = Screen.height - pos.y;
 
-			if (aimRect.Contains (pos)) {
-				unitLogic logic = Unit.GetComponent<unitLogic> ();
-				if (logic.playerID == playerID) {
-					currentSelection.Add(Unit);
+				if (aimRect.Contains (pos)) {
+					unitAgent logic = Unit.GetComponent<unitAgent> ();
+					if (logic.playerID == playerID) {
+						currentSelection.Add (Unit);
+					}
 				}
 			}
 		
@@ -111,7 +119,7 @@ public class selectionManager : MonoBehaviour {
 
 		foreach (GameObject Unit in unitsInPlay) {
 			Vector3 pos = Camera.main.WorldToScreenPoint(Unit.transform.position);
-			unitLogic mgmt = Unit.GetComponent<unitLogic> ();
+			unitAgent mgmt = Unit.GetComponent<unitAgent> ();
 			string mgType = mgmt._type.ToString ();
 			if (screenRect.Contains (pos) && mgType == type) {
 				currentSelection.Add(Unit);
@@ -130,7 +138,8 @@ public class selectionManager : MonoBehaviour {
 			Debug.Log ("Deselect");
 	}
 
-	void reCacheUnits (GameObject unit, bool state) {
+	void reCacheUnits (int ID) {
+
 
 		if (gManager != null) {
 
@@ -176,4 +185,57 @@ public class selectionManager : MonoBehaviour {
 			Debug.Log ("Player " + playerID + " | Selected " + i + " units.");
 		}
 	}
+
+
+	void onAttackClick(Vector3 point, GameObject actor, int ID){
+		if (ID == playerID) {
+			if (currentSelection != null) {
+
+				Order attack = new Order (Order.Type.Attack, playerID, 0);
+				attack.unitTarget = actor;
+
+				eventManager.ProcessOrder (attack, currentSelection.ToArray());
+
+			}
+		}
+		
+	}
+
+
+	void onNavClick(Vector3 point, GameObject actor, int ID){
+
+		if (ID == playerID) {
+	
+			if (currentSelection != null) {
+
+				Order move = new Order (Order.Type.Move, playerID, 0);
+				move.navTarget = point;
+
+				eventManager.ProcessOrder (move, currentSelection.ToArray());
+
+				}
+
+			}
+		}
+
+	void onPatrol(Vector3 pointA, Vector3 pointB, int ID ){
+
+		if (ID == playerID) {
+
+			if (currentSelection != null) {
+
+				Order patrol = new Order (Order.Type.Patrol, playerID, 0);
+				patrol.patrolA = pointA;
+				patrol.patrolB = pointB;
+
+				foreach (GameObject unit in currentSelection) {
+
+					eventManager.ServeOrder (patrol, unit, 0, playerID);
+
+				}
+
+			}
+		}
+	}
+
 }

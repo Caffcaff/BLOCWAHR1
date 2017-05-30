@@ -7,6 +7,8 @@ public class tracerLogic : MonoBehaviour {
 	public float destroyTimer =2;
 	public float movementSpeed = 100;
 	public bool first = true;
+	public int damage = 5;
+	public GameObject owner;
 
 	// Use this for initialization
 	void Start () {
@@ -24,11 +26,17 @@ public class tracerLogic : MonoBehaviour {
 			return;
 		}
 
-		if (col.gameObject.layer != 11) {
+		if (col.gameObject.layer != 11 && col.gameObject.layer != 16) {
 
 			Debug.Log ("Tracer hit " + col.gameObject.name);
+
+			if (col.gameObject.tag == "Friendly" || col.gameObject.tag == "Structure") {
+				eventManager.Damage (damage, owner, col.gameObject);
+			}
+
 			eventManager.ParticleEvent (transform.position, transform.position, 2);
 			Destroy (gameObject);
+
 		}
 
 	}

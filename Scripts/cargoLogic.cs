@@ -5,7 +5,7 @@ using UnityEngine;
 public class cargoLogic : MonoBehaviour {
 
 	public GameObject[] cargoPods;
-	private unitLogic uLogic;
+	private unitAgent uLogic;
 	public int podsCount;
 	public int capacity;
 	public float refreshRate = 1;
@@ -15,7 +15,7 @@ public class cargoLogic : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		podsCount = cargoPods.Length;
-		uLogic = GetComponentInParent<unitLogic> ();
+		uLogic = GetComponentInParent<unitAgent> ();
 		foreach (GameObject pod in cargoPods) {
 		pod.SetActive(false);
 		capacity = uLogic.rCapacity;

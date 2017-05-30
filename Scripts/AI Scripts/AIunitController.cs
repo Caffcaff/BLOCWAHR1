@@ -61,15 +61,16 @@ public class AIunitController : MonoBehaviour {
 	public GameObject gManager;
 
 	void OnEnable(){
+
+		eventManager.onUnitCache += reCacheUnits;
 		eventManager.onInitOrder += onCommand;
-		eventManager.onUnitSpawn += reCacheCheck;
 		eventManager.onListInit += onInit;
 	}
 
 	void OnDisable(){
 
+		eventManager.onUnitCache += reCacheUnits;
 		eventManager.onInitOrder -= onCommand;
-		eventManager.onUnitSpawn -= reCacheCheck;
 		eventManager.onListInit -= onInit;
 	}
 
@@ -101,7 +102,7 @@ public class AIunitController : MonoBehaviour {
 	//	}
 	}
 
-	public void reCacheUnits (){
+	public void reCacheUnits (int ID){
 
 		miners.Clear ();
 		mGuns.Clear ();
@@ -116,30 +117,33 @@ public class AIunitController : MonoBehaviour {
 
 		foreach (GameObject unit in gManager.GetComponent<unitIndex>().units[playerID]) {
 
-			unitLogic ai = unit.GetComponent<unitLogic> ();
+			if (unit != null) {
 
-			if (ai._type == unitLogic.Type.mGun) {
-				mGuns.Add (unit);
-				if (ai.onMission == false) {
-					idle_mGuns.Add (unit);
+				unitAgent ai = unit.GetComponent<unitAgent> ();
+
+				if (ai._type == unitAgent.Type.mGun) {
+					mGuns.Add (unit);
+					if (ai.onMission == false) {
+						idle_mGuns.Add (unit);
+					}
 				}
-			}
-			if (ai._type == unitLogic.Type.Missile) {
-				missiles.Add (unit);
-				if (ai.onMission == false) {
-					idle_missiles.Add (unit);
+				if (ai._type == unitAgent.Type.missile) {
+					missiles.Add (unit);
+					if (ai.onMission == false) {
+						idle_missiles.Add (unit);
+					}
 				}
-			}
-			if (ai._type == unitLogic.Type.Miner) {
-				miners.Add (unit);
-				if (ai.onMission == false) {
-					idle_miners.Add (unit);
+				if (ai._type == unitAgent.Type.miner) {
+					miners.Add (unit);
+					if (ai.onMission == false) {
+						idle_miners.Add (unit);
+					}
 				}
-			}
-			if (ai._type == unitLogic.Type.Utility) {
-				utilities.Add (unit);
-				if (ai.onMission == false) {
-					idle_utilities.Add (unit);
+				if (ai._type == unitAgent.Type.utility) {
+					utilities.Add (unit);
+					if (ai.onMission == false) {
+						idle_utilities.Add (unit);
+					}
 				}
 			}
 		}
@@ -149,7 +153,7 @@ public class AIunitController : MonoBehaviour {
 
 		if (orderQueue.Count != 0) {
 
-			reCacheUnits ();
+			reCacheUnits (5);
 
 			Order currOrder = orderQueue [0];
 			missionLoadout loadout = new missionLoadout (0, 0, 0, 0, 0);
@@ -240,14 +244,13 @@ public class AIunitController : MonoBehaviour {
 
 				GameObject[] units = missionUnits.ToArray ();
 				foreach (GameObject unit in units) {
-					eventManager.SelectEvent (unit, playerID);
+				eventManager.SelectEvent (unit, playerID);
 				}
 				currSelect = units;
-				eventManager.ServeOrder(currOrder, units, 0);
-				AItoInput (currOrder);
+				serveOrder (currOrder, units);
 				orderQueue.RemoveAt (0);
 				Debug.Log ("ORDER: "+ currOrder._type + " order served to " + missionUnits.Count + " units.");
-				reCacheUnits ();
+				reCacheUnits (5);
 				return;
 
 				}
@@ -276,7 +279,7 @@ public class AIunitController : MonoBehaviour {
 		}
 	}
 
-	void onCommand(Order order, GameObject[] units, int statusCode){
+	void onCommand(Order order, GameObject unit, int statusCode, int ID){
 
 		if(order.playerID == playerID){
 
@@ -354,52 +357,29 @@ public class AIunitController : MonoBehaviour {
 
 	void onInit(int ID){
 
-		reCacheUnits ();
+		reCacheUnits (5);
 		setupLoadouts ();
 
 		isLive = true;
 
 	}
 
-	void AItoInput(Order currOrder){
+	void serveOrder(Order order, GameObject[] units){
 
-		if (currOrder._type == Order.Type.Recon || currOrder._type == Order.Type.Move) {
+		if (order._type != Order.Type.Patrol) {
+
+			eventManager.ProcessOrder (order, units);
+
+		} else {
 
 
-			eventManager.NavClick (currOrder.navTarget, null, playerID);
+			foreach (GameObject unit in units) {
 
-			if (debugActive) {
-				Debug.Log ("AI Nav Click - Player: " + playerID);
-			}
-	
-			return;
-		}
+				eventManager.ServeOrder (order, unit, 0, playerID);
 
-		if (currOrder._type == Order.Type.Attack || currOrder._type == Order.Type.Build || currOrder._type == Order.Type.Mine) {
-		
-			eventManager.AttackClick (currOrder.navTarget, currOrder.unitTarget, playerID);
-
-			if (debugActive) {
-				Debug.Log ("AI Attack Click - Player: " + playerID);
 			}
 
-			return;
 		}
-
-
-		if (currOrder._type == Order.Type.Patrol) {
-
-
-			eventManager.PatrolSet (currOrder.patrolA, currOrder.patrolB, playerID);
-
-			if (debugActive) {
-				Debug.Log ("AI Patrol Click - Player: " + playerID);
-			}
-
-			return;
-		}
-
-
 
 	}
 

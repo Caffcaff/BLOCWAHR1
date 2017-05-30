@@ -17,7 +17,6 @@ public class buildLogic : MonoBehaviour {
 	public int buildTotal = 200;
 	public GameObject finalBuild;
 	public GameObject buildMesh;
-	public GameObject explosion;
 	public Vector3 interfacePoint;
 	public GameObject interfaceMarker;
 	public bool activeOnLoad = false;
@@ -141,7 +140,7 @@ public class buildLogic : MonoBehaviour {
 		Vector3 tempRotation = new Vector3(Random.Range(0,360),Random.Range(0,360),Random.Range(0,360));
 		tempRotation.x = 0;
 		tempRotation.z = 0;
-		Instantiate(explosion, transform.position, transform.rotation);
+		eventManager.ParticleEvent (transform.position, transform.position, 5);
 		Destroy(this.gameObject, 1);
 	}
 }

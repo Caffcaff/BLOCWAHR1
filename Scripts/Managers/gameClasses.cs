@@ -111,6 +111,7 @@ public sealed class Order{
 		Move,
 		Mine,
 		Build,
+		Repair,
 		Attack,
 		Patrol
 	}

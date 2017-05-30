@@ -37,7 +37,7 @@
 	[HelpURL("http://arongranberg.com/astar/docs/class_a_i_path.php")]
 	public class AIPathfinder : MonoBehaviour {
 
-		public unitLogic uLogic;
+		public unitAgent uLogic;
 		/** Determines how often it will search for new paths.
 	 * If you have fast moving targets or AIs, you might want to set it to a lower value.
 	 * The value is in seconds between path requests.
@@ -169,7 +169,7 @@
 	 */
 		protected virtual void Start () {
 			startHasRun = true;
-			uLogic = GetComponent<unitLogic> ();
+			uLogic = GetComponent<unitAgent> ();
 			OnEnable();
 		}
 

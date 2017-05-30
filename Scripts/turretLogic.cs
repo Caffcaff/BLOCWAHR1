@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class turretLogic : MonoBehaviour {
 
-	public unitLogic unitmgmt;
+	public unitAgent unitmgmt;
 	public GameObject target;
 	public Vector3 lookSpot;
 	bool looking = true;
@@ -12,7 +12,7 @@ public class turretLogic : MonoBehaviour {
 	// Use this for initialization
 	void Start () {
 		if (unitmgmt == null) {
-			unitmgmt = GetComponentInParent<unitLogic> ();
+			unitmgmt = GetComponentInParent<unitAgent> ();
 		}
 	}
 	

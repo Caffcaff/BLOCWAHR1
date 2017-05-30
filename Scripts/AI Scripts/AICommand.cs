@@ -144,7 +144,7 @@ public class AICommand : MonoBehaviour {
 		if (initRun == true) {
 
 			Order mineOrder = new Order (Order.Type.Mine, playerID, outpostIndex);
-			eventManager.InitOrder (mineOrder, null, 0);
+			eventManager.InitOrder (mineOrder, null, 0, playerID);
 
 			inCleanup ();
 
@@ -180,7 +180,7 @@ public class AICommand : MonoBehaviour {
 								if (i == 4) {
 									Order reconOrder = new Order (Order.Type.Recon, playerID, (outpostIndex + 1));
 									Debug.Log ("Recon Order");
-									eventManager.InitOrder (reconOrder,null, 0);
+									eventManager.InitOrder (reconOrder,null, 0, playerID);
 									// Request Recon (playerID, outposts[(outpostIndex+1)]);
 								}
 							}
@@ -199,7 +199,7 @@ public class AICommand : MonoBehaviour {
 							else {
 								if (issueMineOrder == true) {
 									Order mineOrder = new Order (Order.Type.Mine, playerID, outpost.ID);
-									eventManager.InitOrder (mineOrder, null, 0);
+									eventManager.InitOrder (mineOrder, null, 0, playerID);
 									issueMineOrder = false;
 								}
 							}
@@ -254,7 +254,7 @@ public class AICommand : MonoBehaviour {
 
 				Order buildOrder = new Order (Order.Type.Build, playerID, 0);
 				buildOrder.unitTarget = part;
-				eventManager.InitOrder (buildOrder, null, 0);
+				eventManager.InitOrder (buildOrder, null, 0, playerID);
 
 			}
 		} else {
@@ -265,7 +265,7 @@ public class AICommand : MonoBehaviour {
 
 					Order buildOrder = new Order (Order.Type.Build, playerID, 0);
 					buildOrder.unitTarget = part;
-					eventManager.InitOrder (buildOrder, null, 0);
+					eventManager.InitOrder (buildOrder, null, 0, playerID);
 
 				}
 			}else{
@@ -359,7 +359,7 @@ public class AICommand : MonoBehaviour {
 				buildOrder.unitTarget = temp;
 				buildOrder.navTarget = pos;
 
-				eventManager.InitOrder (buildOrder,null, 0);
+				eventManager.InitOrder (buildOrder,null, 0, playerID);
 			
 				return temp;
 
@@ -386,12 +386,12 @@ public class AICommand : MonoBehaviour {
 		}
 	}
 
-	void onReturnOrder(Order order, GameObject[] units, int StatusCode){
+	void onReturnOrder(Order order, GameObject unit, int StatusCode, int ID){
 
 		if (order.playerID == playerID) {
 
 			if (StatusCode != 1) {
-				eventManager.InitOrder (order, null, 0);
+				eventManager.InitOrder (order, null, 0, playerID);
 				return;
 			}
 
@@ -405,7 +405,7 @@ public class AICommand : MonoBehaviour {
 				outpostIndex = order.outpostID;
 
 
-				eventManager.InitOrder (order, null, 0);
+				eventManager.InitOrder (order, null, 0, playerID);
 				return;
 			}
 
@@ -422,7 +422,7 @@ public class AICommand : MonoBehaviour {
 			Order attack = new Order(Order.Type.Attack, playerID, outpostIndex);
 			attack.navTarget = scan.location;
 
-			eventManager.InitOrder (attack, null, 0);
+			eventManager.InitOrder (attack, null, 0, playerID);
 		}
 	}
 

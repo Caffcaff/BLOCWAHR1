@@ -157,7 +157,7 @@ public class inputManager : MonoBehaviour {
 		if (Input.GetButtonDown ("Fire1") == true && GUIActive ==false) {
 			Debug.Log ("Pressed right click.");
 			RaycastHit hit;
-			var layerMask = ~(1 << 11);
+			var layerMask = ~(1 << 16);
 
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
 			if (Physics.Raycast (ray, out hit, 2000.0f, layerMask)) {
@@ -183,7 +183,7 @@ public class inputManager : MonoBehaviour {
 		if (Input.GetButtonDown ("Fire2") == true && GUIActive ==false) {
 			Debug.Log ("Pressed middle click.");
 			RaycastHit hit; 
-			var layerMask = ~(1 << 11);
+			var layerMask = ~(1 << 16);
 			Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
 			if (Physics.Raycast (ray, out hit, 1000.0f, layerMask)) {
 				if (hit.collider.tag != null) {
@@ -199,7 +199,7 @@ public class inputManager : MonoBehaviour {
 	{
 		Debug.Log ("Pressed left click.");
 		RaycastHit hit; 
-		var layerMask = ~(1 << 11);
+		var layerMask = ~(1 << 16);
 		Ray ray = Camera.main.ScreenPointToRay (Input.mousePosition); 
 		if (Physics.Raycast (ray, out hit, 1000.0f, layerMask)) {
 			if (hit.collider.tag != null) {
@@ -295,7 +295,7 @@ public class inputManager : MonoBehaviour {
 
 		bool canMove = true;
 		RaycastHit hit;
-		var layerMask = ~(1 << 11);
+		var layerMask = ~(1 << 16);
 		Vector2 mp = Input.mousePosition;
 		Ray ray = Camera.main.ScreenPointToRay (mp); 
 	

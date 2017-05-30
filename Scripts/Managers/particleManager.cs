@@ -10,6 +10,7 @@ public class particleManager : MonoBehaviour {
 	public GameObject mGunHit;
 	public GameObject Tracer;
 	public GameObject navHalo;
+	public GameObject unitExplode;
 
 	public LineRenderer pLineRender;
 
@@ -22,7 +23,7 @@ public class particleManager : MonoBehaviour {
 	}
 	// Use this for initialization
 	void Start () {
-		GameObject temp = GameObject.Find ("LineRenderer");
+		GameObject temp = GameObject.Find ("lineRenderer");
 		pLineRender = temp.GetComponent<LineRenderer> ();
 
 	}
@@ -47,7 +48,7 @@ public class particleManager : MonoBehaviour {
 		//	resourceComplete ();
 		}
 		if (type == 5) {
-		//	unitExplode ();
+			Instantiate (unitExplode, sender, transform.rotation);
 		}
 		if (type == 6) {
 		//	unitSmoke ();

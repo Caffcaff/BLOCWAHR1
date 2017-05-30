@@ -43,7 +43,6 @@ public class unitIndex : MonoBehaviour {
 		eventManager.onBuildInit -= structReCache;
 		eventManager.onUnitDestroy -= unitReCache;
 		eventManager.onUnitSpawn -= onSpawn;
-
 	}
 
 
@@ -65,7 +64,6 @@ public class unitIndex : MonoBehaviour {
 
 	// Use this for initialization
 	void unitReCache (GameObject Unit, bool state) {
-
 
 		List<GameObject> allUnits = new List<GameObject> ();
 
@@ -100,13 +98,13 @@ public class unitIndex : MonoBehaviour {
 
 		foreach (GameObject unit in allUnits) {
 			
-			if (unit.GetComponent<unitLogic>() != null) {
+			if (unit.GetComponent<unitAgent>() != null) {
 
 				int i = 0;
 
 				while (i < 5) {
 
-					if (unit.GetComponent<unitLogic> ().playerID == i) {
+					if (unit.GetComponent<unitAgent> ().playerID == i) {
 						tempUnits [i].Add (unit);
 					} else {
 						tempHostiles[i].Add(unit);
@@ -128,6 +126,7 @@ public class unitIndex : MonoBehaviour {
 			Init = true;
 		}
 
+		eventManager.UnitCache (5);
 	}
 	
 	// Update is called once per frame

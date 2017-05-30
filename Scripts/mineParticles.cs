@@ -5,7 +5,7 @@ using UnityEngine;
 public class mineParticles : MonoBehaviour {
 
 	public ParticleSystem particles;
-	private unitLogic uLogic;
+	private unitAgent uLogic;
 	public bool active;
 	public float gravity = 5;
 	public float startUp = 1.5f;
@@ -14,14 +14,14 @@ public class mineParticles : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		uLogic = GetComponentInParent<unitLogic> ();
+		uLogic = GetComponentInParent<unitAgent> ();
 		particles = GetComponent<ParticleSystem> ();
 		ticker = startUp;
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (uLogic._state == unitLogic.State.Mine || uLogic._state == unitLogic.State.Build) {
+		if (uLogic._state == unitAgent.State.Mine || uLogic._state == unitAgent.State.Build) {
 			ticker -= Time.deltaTime;
 			var em = particles.emission;
 			active = true;

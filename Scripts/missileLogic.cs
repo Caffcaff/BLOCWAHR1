@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class missileLogic : MonoBehaviour {
 
-	public int damage =2;
+	public int damage = 10;
 	public float radius;
 	public GameObject target;
 	public GameObject explosion;
@@ -20,10 +20,7 @@ public class missileLogic : MonoBehaviour {
 	void Start ()
 	{
 		cl = GetComponent<Collider> ();
-		unitLogic parent = GetComponentInParent<unitLogic> ();
-		target = parent.target;
-		owner = parent.gameObject;
-		transform.parent = null;
+		unitAgent parent = GetComponentInParent<unitAgent> ();
 		Destroy(gameObject, destroyTimer);
 	}
 
@@ -50,8 +47,13 @@ public class missileLogic : MonoBehaviour {
 	void OnCollisionEnter(Collision col)
 	{
 		if (col.other.gameObject.GetComponent<Collider>().tag != "Friendly" && safetyTimer < 0) {
-			eventManager.Damage (damage, owner, col.gameObject);
+
+			if (col.gameObject.tag == "Friendly" || col.gameObject.tag == "Structure") {
+				eventManager.Damage (damage, owner, col.gameObject);
+			}
+
 			Instantiate (explosion, transform.position, transform.rotation);
+
 			Destroy (gameObject);
 		}
 	}

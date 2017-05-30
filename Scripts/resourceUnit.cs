@@ -47,8 +47,8 @@ public class resourceUnit : MonoBehaviour {
 		cutOff = false;
 		
 		if (reciever == this.gameObject) {
-			unitLogic tempUnit = sender.GetComponent<unitLogic> ();
-			if (tempUnit._type == unitLogic.Type.Miner) {
+			unitAgent tempUnit = sender.GetComponent<unitAgent> ();
+			if (tempUnit._type == unitAgent.Type.miner) {
 				float rand = Random.Range (0, 10);
 				if (rand < debrisRate) {
 					GameObject temp = Instantiate (debris, transform.position, Random.rotation);
