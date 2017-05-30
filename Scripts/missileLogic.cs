@@ -4,10 +4,11 @@ using UnityEngine;
 
 public class missileLogic : MonoBehaviour {
 
-	public int damage =2;
+	public int damage = 10;
 	public float radius;
 	public GameObject target;
 	public GameObject explosion;
+	public GameObject owner;
 	public float safetyTimer = 2;
 	public float speed =60;
 	public float speed2 =60;
@@ -19,8 +20,7 @@ public class missileLogic : MonoBehaviour {
 	void Start ()
 	{
 		cl = GetComponent<Collider> ();
-		unitManager parent = GetComponentInParent<unitManager> ();
-		target = parent.attackTarget;
+		unitAgent parent = GetComponentInParent<unitAgent> ();
 		Destroy(gameObject, destroyTimer);
 	}
 
@@ -47,8 +47,13 @@ public class missileLogic : MonoBehaviour {
 	void OnCollisionEnter(Collision col)
 	{
 		if (col.other.gameObject.GetComponent<Collider>().tag != "Friendly" && safetyTimer < 0) {
-		eventManager.Damage (damage, transform.parent.gameObject, col.gameObject);
+
+			if (col.gameObject.tag == "Friendly" || col.gameObject.tag == "Structure") {
+				eventManager.Damage (damage, owner, col.gameObject);
+			}
+
 			Instantiate (explosion, transform.position, transform.rotation);
+
 			Destroy (gameObject);
 		}
 	}

@@ -6,8 +6,8 @@ public class healthText : MonoBehaviour {
 
 	public string healthAmount;
 	public int managerAmount;
-	private int total;
-	public unitManager manager;
+	private int total = 100;
+	public unitAgent manager;
 	public TextMesh text;
 	public Color mid;
 	public Color low;
@@ -17,28 +17,28 @@ public class healthText : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-		manager = GetComponentInParent<unitManager> ();
+		manager = GetComponentInParent<unitAgent> ();
 		text = GetComponent<TextMesh> ();
 	}
 	
 	// Update is called once per frame
 	void Update () {
-		if (manager != null) {
+		if (manager != null && manager.health > 0) {
 			managerAmount = manager.health;
 			healthAmount = managerAmount.ToString ();
 			text.text = healthAmount;
 		}
-			if ((total/managerAmount) < 1.5) {
+		if ((total/managerAmount) < 1.5) {
 				text.color = Color.white;
 			}
 
-			if ((total/managerAmount) < 2) {
+		if ((total/managerAmount) < 2) {
 				text.color = mid;
 			}
-			if ((total/managerAmount) < 3) {
+		if ((total/managerAmount) < 3) {
 				text.color = low;
 			}
-			if ((total/managerAmount) > 3) {
+		if ((total/managerAmount) > 3) {
 				text.color = danger;
 			}
 		}
